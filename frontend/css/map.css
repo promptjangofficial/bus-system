@@ -1,0 +1,19 @@
+/* Phase 6 — สไตล์บนแผนที่ */
+.leaflet-container { background: var(--surface-2); font-family: var(--f-body); }
+.leaflet-tile-pane { filter: var(--tile-filter); }
+.st-icon { display: grid; place-items: center; }
+.st-pin { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2.5px solid var(--ink); font: 700 12px var(--f-mono); color: var(--ink); box-shadow: 0 1px 3px rgb(0 0 0 / .25); }
+.st-pin.is-sel { border-color: var(--accent); border-width: 3.5px; }
+.st-pin.is-draft { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+.bus-icon { transition: transform .26s linear; }
+.leaflet-zoom-anim .bus-icon { transition: none; }
+.bus-pin { position: relative; width: 26px; height: 26px; border-radius: 8px; background: var(--c); border: 3px solid var(--ring, var(--surface)); box-shadow: 0 2px 6px rgb(0 0 0 / .35); display: grid; place-items: center; }
+.bus-pin svg { width: 14px; height: 14px; }
+.bus-pin .name { position: absolute; left: 30px; top: 3px; white-space: nowrap; font: 700 11.5px var(--f-mono); color: var(--c); text-shadow: 0 0 3px var(--surface), 0 0 3px var(--surface), 0 0 3px var(--surface); }
+.bus-pin .gps { position: absolute; right: -6px; top: -6px; width: 10px; height: 10px; border-radius: 50%; background: var(--st-live); border: 2px solid var(--surface); }
+.bus-pin.st-MOVING { --ring: var(--st-moving); } .bus-pin.st-AT_STATION { --ring: var(--st-station); }
+.bus-pin.st-BROKEN { --ring: var(--st-broken); animation: pulse 1.1s infinite; } .bus-pin.st-MODIFYING { --ring: var(--st-modifying); }
+.bus-pin.is-sel { outline: 3px solid var(--accent); outline-offset: 2px; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--st-broken) 25%, transparent); } }
+.leaflet-tooltip { font-family: var(--f-body); }

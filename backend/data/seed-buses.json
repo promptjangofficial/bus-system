@@ -1,0 +1,5 @@
+[
+  { "name": "NU-01",   "plate": "10-1234 พล", "capacity": 40, "speedKmh": 32, "route": ["a","b","e","d","g","h","g","d","e","b"] },
+  { "name": "AIR-03",  "plate": "10-5678 พล", "capacity": 30, "speedKmh": 35, "route": ["c","f","l","k","j","h","g","d","e"] },
+  { "name": "CITY-02", "plate": "11-2468 พล", "capacity": 25, "speedKmh": 25, "route": ["d","g","h","j","i","h","g"] }
+]

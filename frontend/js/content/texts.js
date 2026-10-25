@@ -1,0 +1,33 @@
+// Phase 6 — ข้อความคงที่บนหน้าจอ
+export const STATUS_LABEL = {
+  MOVING: 'กำลังวิ่ง',
+  AT_STATION: 'จอดที่สถานี',
+  BROKEN: 'รถเสีย',
+  MODIFYING: 'แก้ไขเส้นทาง',
+  RETIRED: 'ปลดระวาง',
+};
+
+export const NETWORK_SOURCE = {
+  osrm: 'ระยะทางตามถนนจริง',
+  mixed: 'ระยะทางตามถนนจริงบางส่วน',
+  estimate: 'ระยะทางโดยประมาณ',
+};
+
+export const TABS = [
+  ['fleet', 'รถโดยสาร'],
+  ['add', 'เพิ่มรถ'],
+  ['devices', 'อุปกรณ์ติดรถ'],
+];
+
+export const DEVICE_FEATURES = [
+  { name: 'ตำแหน่งรถจริงบนแผนที่', device: 'GPS Tracker (เช่น ESP32 + GPS / 4G)', type: 'gps', fallback: 'ใช้ตำแหน่งจากการจำลอง' },
+  { name: 'ตรวจว่ารถถึงสถานีอัตโนมัติ', device: 'GPS (รัศมี 80 ม.)', type: 'gps', fallback: 'คำนวณจากระยะทางและความเร็ว' },
+  { name: 'เวลาถึงสถานีจากความเร็วจริง', device: 'GPS', type: 'gps', fallback: 'ใช้ความเร็วที่กำหนดไว้' },
+  { name: 'จำนวนผู้โดยสาร / เตือนเกินความจุ', device: 'เซนเซอร์นับคนที่ประตู', type: 'passenger', fallback: 'แสดง "รอเซนเซอร์"' },
+  { name: 'แจ้งรถเสียอัตโนมัติ', device: 'OBD-II อ่านรหัสขัดข้อง', type: 'engine', fallback: 'ผู้ดูแลกด "แจ้งรถเสีย" เอง' },
+];
+
+export const PAYLOAD_EXAMPLES =
+`{"bus":"NU-01","type":"gps","lat":16.8153,"lng":100.2635,"speedKmh":28}
+{"bus":"NU-01","type":"passenger","count":23}
+{"bus":"NU-01","type":"engine","fault":true,"code":"P0300"}`;

@@ -1,0 +1,18 @@
+name: bus-system
+
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    init: true   # forwards stop signals to node so the container stops cleanly
+    environment:
+      DEVICE_API_KEY: ${DEVICE_API_KEY:-}
+      USE_OSRM: ${USE_OSRM:-1}
+    # Loopback only: the Cloudflare Tunnel on the host forwards the domain here.
+    ports:
+      - "127.0.0.1:3100:3000"
+    volumes:
+      - bus-data:/data
+
+volumes:
+  bus-data:

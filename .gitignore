@@ -1,0 +1,6 @@
+backend/data/runtime/*
+!backend/data/runtime/.gitkeep
+node_modules
+.env
+.claude/settings.local.json
+CLAUDE.local.md

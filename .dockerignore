@@ -1,0 +1,10 @@
+.git
+node_modules
+tests
+backend/data/runtime/*
+.env
+Dockerfile
+docker-compose.yml
+*.md
+package-lock.json
+eslint.config.js

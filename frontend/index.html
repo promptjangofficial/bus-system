@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ระบบเดินรถพิษณุโลก</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+  <header class="app-header" id="header"></header>
+
+  <main class="app-main">
+    <section class="map-area" aria-label="แผนที่">
+      <div id="map" class="map"></div>
+      <div id="stationCard" class="station-card" hidden></div>
+      <div id="eventLog" class="event-log" aria-live="polite"></div>
+    </section>
+
+    <aside class="panel" aria-label="แผงควบคุม">
+      <nav class="tabs" role="tablist" id="tabs"></nav>
+      <div class="panel-body" id="panelBody"></div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

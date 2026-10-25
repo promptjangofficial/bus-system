@@ -1,0 +1,33 @@
+/* Phase 6 — Design tokens: สี ตัวอักษร ระยะ (แก้ธีมที่ไฟล์นี้ไฟล์เดียว) */
+:root {
+  --bg: #e6ebe9;  --surface: #f8faf9;  --surface-2: #eef2f0;
+  --ink: #13201c; --muted: #56675f;    --line: #cbd5d0;
+  --accent: #c97a00; --accent-ink: #ffffff;
+  --road: #6b7d76; --route-draft: #c97a00;
+  --st-moving: #1d7f47; --st-station: #2260a3; --st-broken: #c0392b;
+  --st-modifying: #a86a0c; --st-retired: #7b8781; --st-live: #0b8a8f;
+  --shadow: 0 8px 24px rgb(16 32 28 / .14);
+  --tile-filter: none;
+
+  --f-display: "Bai Jamjuree", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans Thai", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --radius: 8px;
+  --header-h: 60px;
+  --panel-w: 410px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1614;  --surface: #15201d;  --surface-2: #1b2824;
+    --ink: #e2ebe7; --muted: #8fa39a;    --line: #2a3a35;
+    --accent: #f0a531; --accent-ink: #1a1204;
+    --road: #8fa39a; --route-draft: #f0a531;
+    --st-moving: #4cc17e; --st-station: #6ea8f0; --st-broken: #f07263;
+    --st-modifying: #e3a64a; --st-retired: #7d8c86; --st-live: #3fc9cd;
+    --shadow: 0 8px 24px rgb(0 0 0 / .45);
+    --tile-filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6);
+    color-scheme: dark;
+  }
+}
