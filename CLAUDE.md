@@ -25,4 +25,4 @@ Phitsanulok bus fleet manager + live simulation. Plain Node.js (>=18) and vanill
 - Runtime data (saved buses, OSRM road cache) is in the Docker volume `bus-system_bus-data` mounted at `/data`.
 - The server's `~/bus-system/.env` holds `DEVICE_API_KEY`. It is not in this repo; never overwrite or delete it when syncing.
 - The same server runs other projects (`flood-x`, `promptjang-com`, minecraft). Only touch the `bus-system` compose project.
-- This directory is not a git repository.
+- Git: backup-only repo at github.com/promptjangofficial/bus-system (public, branch `main`, no GitHub Actions/CI). Deploys go through `/deploy`, not GitHub.
