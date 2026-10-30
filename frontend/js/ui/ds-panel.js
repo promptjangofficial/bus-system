@@ -48,7 +48,7 @@ function treeSVG(tree, op) {
     const k = step(n.name);
     const cls = [n.status === 'RETIRED' ? 'off' : '', k >= 0 ? 'on' : '', n.name === hit ? 'hit' : ''].join(' ');
     return `<g class="bst-node ${cls}" transform="translate(${n.x - PW / 2},${n.y - PH / 2})">
-      <rect width="${PW}" height="${PH}" rx="4" style="fill:${n.status === 'RETIRED' ? 'var(--surface-2)' : busColor(n.name)}"/>
+      <rect width="${PW}" height="${PH}" rx="8" style="fill:${n.status === 'RETIRED' ? 'var(--surface-2)' : busColor(n.name)}"/>
       <text x="${PW / 2}" y="${PH / 2 + 5}">${esc(n.name)}</text>
       ${k >= 0 ? `<circle cx="0" cy="0" r="10" class="step"/><text x="0" y="4" class="step-n">${k + 1}</text>` : ''}
     </g>`;

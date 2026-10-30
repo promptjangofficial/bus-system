@@ -20,14 +20,16 @@
   --ok: #1d7a46;
   --ok-ink: #14613a; --err-ink: #b42330; --warn-ink: #6e4600;
 
-  --shadow: 0 1px 2px rgb(30 41 59 / .08), 0 6px 18px rgb(30 41 59 / .10);
+  /* flat: ไม่มีเงาซ้อน · เงานุ่มชั้นเดียวเฉพาะของที่ลอยบนแผนที่ */
+  --shadow: 0 6px 20px rgb(30 41 59 / .10);
   --tile-filter: grayscale(1) brightness(1.06) contrast(.88);
 
   --f-body: "Anuphan", "Noto Sans Thai", system-ui, sans-serif;
   --f-display: var(--f-body);
   --f-mono: var(--f-body);
 
-  --radius: 6px;
+  /* มุมโค้ง: ปุ่ม/ป้าย · การ์ด · แผง/แผ่นล่าง · ปุ่มกลม */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 20px; --r-pill: 999px;
   --header-h: 64px;
   --panel-w: 420px;
   color-scheme: light;
@@ -44,7 +46,7 @@
     --st-moving: #4cc38a; --st-station: #7aa7e8; --st-broken: #e5484d;
     --st-modifying: #f0b44c; --st-retired: #6b7889; --st-live: #2dd4bf;
     --ok: #4cc38a; --ok-ink: #6fdca0; --err-ink: #ff9592; --warn-ink: #f5c56b;
-    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 6px 18px rgb(0 0 0 / .35);
+    --shadow: 0 8px 24px rgb(0 0 0 / .40);
     /* แผนที่ OSM ขาวดำหรี่แสง ไม่กลับสี (ถนนและชื่อยังอ่านเหมือนเดิม) */
     --tile-filter: grayscale(1) brightness(.58) contrast(1.12);
     color-scheme: dark;
@@ -59,7 +61,7 @@
   --st-moving: #4cc38a; --st-station: #7aa7e8; --st-broken: #e5484d;
   --st-modifying: #f0b44c; --st-retired: #6b7889; --st-live: #2dd4bf;
   --ok: #4cc38a; --ok-ink: #6fdca0; --err-ink: #ff9592; --warn-ink: #f5c56b;
-  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 6px 18px rgb(0 0 0 / .35);
+  --shadow: 0 8px 24px rgb(0 0 0 / .40);
   --tile-filter: grayscale(1) brightness(.58) contrast(1.12);
   color-scheme: dark;
 }

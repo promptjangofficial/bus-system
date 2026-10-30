@@ -31,7 +31,7 @@
 [data-view="rider"] .rider-sheet {
   display: flex; flex-direction: column; gap: 12px;
   position: absolute; z-index: 600; left: 16px; top: 16px; width: 400px; max-height: calc(100% - 32px); overflow: auto;
-  background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); padding: 18px 20px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 18px 20px;
 }
 
 @media (max-width: 700px) {
@@ -45,9 +45,9 @@
   /* แผ่นข้อมูลอยู่ใต้แผนที่ ไม่บังรถบนแผนที่ */
   [data-view="rider"] .rider-sheet {
     position: relative; left: auto; top: auto; width: auto; flex: 0 1 auto; max-height: 52dvh;
-    border-radius: 14px 14px 0 0; margin-top: -14px; box-shadow: 0 -4px 16px rgb(28 38 53 / .12); padding: 14px 16px 20px;
+    border-radius: var(--r-lg) var(--r-lg) 0 0; margin-top: -20px; box-shadow: var(--shadow); padding: 14px 16px 20px;
   }
-  [data-view="rider"] .rider-sheet::before { content: ""; align-self: center; width: 40px; height: 4px; border-radius: 2px; background: var(--line); flex: none; }
+  [data-view="rider"] .rider-sheet::before { content: ""; align-self: center; width: 40px; height: 4px; border-radius: var(--r-pill); background: var(--line); flex: none; }
   [data-view="rider"] .leaflet-control-zoom { display: none; }
   [data-view="rider"] .leaflet-bottom { bottom: 14px; }
 }
