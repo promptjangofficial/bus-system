@@ -138,6 +138,19 @@ test('แก้ไขเส้นทาง: ขอตอนวิ่ง → ห�
   assert.equal(b.status, STATUS.MOVING);
 });
 
+test('ฉากวิดีโอ: AIR-03 แทรก ม.นเรศวร หลัง รพ.พุทธชินราช แล้วตรวจเส้นทางผ่าน', async () => {
+  const ctx = await freshApp();
+  const b = bus(ctx, 'AIR-03');
+  ctx.fleet.requestModify('AIR-03');
+  for (let i = 0; i < 200 && b.status !== STATUS.MODIFYING; i++) advance(ctx, 30);
+  assert.equal(b.status, STATUS.MODIFYING);
+  const after = b.route.toArray().indexOf('e');
+  ctx.fleet.insertStop('AIR-03', after, 'a');               // e → a → c
+  assert.deepEqual(b.route.toArray().slice(after, after + 2), ['e', 'a']);
+  ctx.fleet.resume('AIR-03');
+  assert.equal(b.status, STATUS.AT_STATION);
+});
+
 test('รถเสียระหว่างวิ่ง: หยุดนิ่ง แล้วซ่อมเสร็จวิ่งต่อจากจุดเดิม', async () => {
   const ctx = await freshApp();
   const b = bus(ctx, 'NU-01');
