@@ -128,6 +128,19 @@ pre { margin: 0; padding: 10px 12px; background: var(--surface-2); border-radius
 .copy-line code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 12.5px ui-monospace, Menlo, monospace; padding: 8px 10px; background: var(--surface-2); border-radius: var(--r-sm); }
 
 /* ---------- บันทึกเหตุการณ์ ---------- */
+.log-bar {
+  justify-self: start; display: inline-flex; align-items: center; gap: 8px; margin: 6px 12px;
+  border: 0; background: none; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--muted);
+}
+.log-bar:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
+.log-bar .chev { display: inline-block; font-size: 15px; line-height: 1; transition: transform var(--dur-med) var(--ease-out); transform: rotate(180deg); }
+[data-log="closed"] .log-bar .chev { transform: none; }
+.log-badge {
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--r-pill); display: inline-grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink); font-size: 12px; font-variant-numeric: tabular-nums;
+  animation: bump var(--dur-slow) var(--ease-spring);
+}
+@keyframes bump { from { transform: scale(.4); opacity: 0; } }
 .event-log div { display: flex; gap: 14px; padding: 1px 0; }
 .event-log .t { color: var(--faint); flex: none; font-variant-numeric: tabular-nums; }
 

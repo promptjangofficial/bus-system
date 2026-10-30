@@ -33,7 +33,10 @@
       <div id="alertBar" class="alert-bar" role="alert" hidden></div>
       <div id="stationCard" class="station-card" hidden></div>
       <div id="riderSheet" class="rider-sheet" aria-label="ข้อมูลรถสำหรับผู้โดยสาร"></div>
-      <div id="eventLog" class="event-log" aria-live="polite"></div>
+      <section class="log-drawer ctl-only" aria-label="บันทึกเหตุการณ์">
+        <button class="log-bar" id="logBar" data-act="logToggle" aria-controls="eventLog"></button>
+        <div class="log-body"><div id="eventLog" class="event-log" aria-live="polite"></div></div>
+      </section>
       <button class="panel-toggle ctl-only" id="panelToggle" data-act="panelToggle" aria-controls="controlPanel"></button>
     </section>
 

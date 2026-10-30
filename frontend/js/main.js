@@ -26,6 +26,7 @@ const el = {
   sheet: document.getElementById('riderSheet'),
   alerts: document.getElementById('alertBar'),
   panelToggle: document.getElementById('panelToggle'),
+  logBar: document.getElementById('logBar'),
 };
 
 const PANELS = {
@@ -84,9 +85,17 @@ function setPanel(open, save = false) {
   el.panelToggle.setAttribute('aria-label', t.label);
   el.panelToggle.setAttribute('aria-expanded', String(open));
 }
-function restorePanel() {
-  const saved = getPref('panel-' + currentLayout());
-  setPanel(saved ? saved === 'open' : currentLayout() === 'pc' || isLandscape());
+// บันทึกเหตุการณ์ยุบได้ · ไม่เคยเลือก: มือถือยุบไว้ นอกนั้นเปิด
+function setLog(open, save = false) {
+  if (save) setPref('log-' + currentLayout(), open ? 'open' : 'closed');
+  state.ui.logOpen = open;
+  document.body.dataset.log = open ? 'open' : 'closed';
+  updateEventLog(el.log, el.logBar);
+}
+function restoreLayout() {
+  const panel = getPref('panel-' + currentLayout()), log = getPref('log-' + currentLayout());
+  setPanel(panel ? panel === 'open' : currentLayout() === 'pc' || isLandscape());
+  setLog(log ? log === 'open' : currentLayout() !== 'phone');
 }
 
 let routeKey = null, linesKey = null;
@@ -123,7 +132,7 @@ subscribe(kind => {
     const panel = PANELS[state.ui.tab];
     if (kind === 'ui') { renderTabs(); panel.render(el.body); }
     else panel.update(el.body);
-    updateEventLog(el.log);
+    updateEventLog(el.log, el.logBar);
     updateStationCard(el.card);
   }
   updateHeader();
@@ -141,9 +150,14 @@ el.panelToggle.addEventListener('click', e => {
   if (e.target.closest('[data-act="panelToggle"]')) setPanel(!state.ui.panelOpen, true);
 });
 document.addEventListener('keydown', e => {
-  if (e.key !== '[' || e.ctrlKey || e.metaKey || e.altKey || rider() || currentLayout() === 'phone') return;
+  // ใช้ตำแหน่งปุ่ม ไม่ใช่ตัวอักษร (แป้นไทยปุ่มนี้คือ บ)
+  if (e.code !== 'BracketLeft' || e.ctrlKey || e.metaKey || e.altKey || rider() || currentLayout() === 'phone') return;
   if (e.target.closest('input, textarea, select, [contenteditable]')) return;
   setPanel(!state.ui.panelOpen, true);
+});
+
+el.logBar.addEventListener('click', e => {
+  if (e.target.closest('[data-act="logToggle"]')) setLog(!state.ui.logOpen, true);
 });
 
 el.alerts.addEventListener('click', e => {
@@ -158,8 +172,8 @@ mountHeader(el.header, { onView: setView, onTheme: theme => setTheme(theme, true
 state.ui.theme = currentTheme();
 applyTheme(state.ui.theme);
 watchSystemTheme(theme => setTheme(theme));
-restorePanel();
-watchLayout(restorePanel);
+restoreLayout();
+watchLayout(restoreLayout);
 mountRiderEvents(el.sheet, { onFocusBus: focusBus });
 mountStationCard(el.card);
 mountFleetEvents(el.body, { onFocusBus: focusBus });
