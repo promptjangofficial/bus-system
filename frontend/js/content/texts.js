@@ -35,6 +35,7 @@ export const TABS = [
   ['fleet', 'รถโดยสาร'],
   ['add', 'เพิ่มรถ'],
   ['devices', 'อุปกรณ์ติดรถ'],
+  ['ds', 'โครงสร้างข้อมูล'],
 ];
 
 export const DEVICE_FEATURES = [

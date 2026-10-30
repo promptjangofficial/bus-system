@@ -46,6 +46,8 @@ class Fleet {
     this.log = log;
     this.onChange = onChange;
     this.tree = new BusTree();
+    // การทำงานล่าสุดที่ผู้ใช้สั่ง (ไว้วาดภาพโครงสร้างข้อมูล) — การค้นหาภายในระบบไม่นับ
+    this.ops = { seq: 0, tree: null, routes: {} };
   }
 
   stationName(code) { return this.graph.station(code)?.name || code; }
@@ -66,7 +68,28 @@ class Fleet {
         this.log.add(LOG.skippedRecord(r?.name ?? '?', err.message));
       }
     }
+    this.ops = { seq: this.ops.seq, tree: null, routes: {} };
+    if (this.tree.root) this.recordTree('create', this.tree.root.bus.name, { count: this.tree.count });
+    for (const b of this.tree.inorder()) this.recordRoute(b.name, 'create', { size: b.route.size });
     this.log.add(LOG.loaded(this.tree.count));
+  }
+
+  recordTree(op, key, extra = {}) {
+    this.ops.tree = { op, key, path: this.tree.search(key).path, ...extra, seq: ++this.ops.seq };
+  }
+
+  recordRoute(name, op, extra = {}) {
+    this.ops.routes[name] = { op, ...extra, seq: ++this.ops.seq };
+  }
+
+  // สำหรับหน้าจอโครงสร้างข้อมูล: รูปต้นไม้ + การทำงานล่าสุด
+  structures() {
+    return {
+      tree: this.tree.shape(b => ({ name: b.name, status: b.status })),
+      count: this.tree.count,
+      treeOp: this.ops.tree,
+      routeOps: this.ops.routes,
+    };
   }
 
   records() {
@@ -84,6 +107,13 @@ class Fleet {
 
   find(name) { return this.tree.search(String(name)); }
 
+  // Search ที่ผู้ใช้สั่ง: บันทึกเส้นทางที่เทียบผ่านไว้แสดงผล
+  search(name) {
+    const r = this.find(name);
+    this.ops.tree = { op: 'search', key: String(name), path: r.path, found: !!r.node, seq: ++this.ops.seq };
+    return r;
+  }
+
   get(name) {
     const r = this.find(name);
     if (!r.node) throw new AppError('BUS_NOT_FOUND', { name }, 404);
@@ -99,12 +129,15 @@ class Fleet {
     const bus = newBus(input, res.route);
     if (this.tree.isEmpty()) {
       this.tree = BusTree.create(bus);
+      this.recordTree('create', bus.name, { count: 1 });
       this.log.add(LOG.rootCreated(bus.name));
     } else {
       const ins = this.tree.insert(bus);
       if (!ins.ok) throw fail(ins, 409);
+      this.recordTree('insert', bus.name);
       this.log.add(LOG.busCreated(bus.name));
     }
+    this.recordRoute(bus.name, 'create', { size: bus.route.size });
     this.changed();
     return bus;
   }
@@ -125,7 +158,12 @@ class Fleet {
     const b = this.get(name);
     if (b.status !== STATUS.RETIRED) throw new AppError('NOT_RETIRED');
     if (confirm !== b.name) throw new AppError('CONFIRM_MISMATCH');
+    const path = this.tree.search(b.name).path;
+    const successor = this.tree.successorName(b.name);
+    const child = this.tree.onlyChildName(b.name);
     this.tree.delete(b.name);
+    this.ops.tree = { op: 'delete', key: b.name, path, successor, child, seq: ++this.ops.seq };
+    delete this.ops.routes[b.name];
     this.log.add(LOG.removed(b.name));
     this.changed();
     return { name: b.name };
@@ -176,6 +214,7 @@ class Fleet {
     this.requireModifying(b);
     const res = b.route.insertAfter(Number(after), String(code));
     if (!res.ok) throw fail(res);
+    this.recordRoute(b.name, 'insert', { index: Number(after) + 1, station: String(code) });
     this.log.add(LOG.stopInserted(b.name, this.stationName(code)));
     this.changed();
     return b;
@@ -186,6 +225,7 @@ class Fleet {
     this.requireModifying(b);
     const res = b.route.deleteAt(Number(index));
     if (!res.ok) throw fail(res);
+    this.recordRoute(b.name, 'delete', { index: Number(index), station: res.removed });
     this.log.add(LOG.stopDeleted(b.name, this.stationName(res.removed)));
     this.changed();
     return b;
@@ -204,7 +244,9 @@ class Fleet {
 
   searchStop(name, code) {
     const b = this.get(name);
-    return { bus: b.name, station: code, positions: b.route.search(String(code)) };
+    const positions = b.route.search(String(code));
+    this.recordRoute(b.name, 'search', { station: String(code), positions });
+    return { bus: b.name, station: code, positions };
   }
 
   validateRoute(codes) {

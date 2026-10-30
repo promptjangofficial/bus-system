@@ -378,3 +378,41 @@ test('บันทึกไฟล์ไม่สำเร็จ ระบบต�
   } finally { fsMod.writeFileSync = real; console.error = realErr; }
   assert.equal(errors.length, 2);
 });
+
+test('โครงสร้างข้อมูล: บันทึกเฉพาะการทำงานที่ผู้ใช้สั่ง พร้อมเส้นทางเปรียบเทียบใน BST', async () => {
+  const ctx = await freshApp();
+  let s = ctx.fleet.structures();
+  assert.equal(s.treeOp.op, 'create');
+  assert.equal(s.tree.name, s.treeOp.key, 'create ชี้ root');
+  assert.equal(s.count, 3);
+  assert.equal(s.routeOps['NU-01'].op, 'create');
+
+  ctx.fleet.search('CITY-02');
+  s = ctx.fleet.structures();
+  assert.equal(s.treeOp.op, 'search');
+  assert.equal(s.treeOp.found, true);
+  assert.equal(s.treeOp.path.at(-1), 'CITY-02');
+  const seq = s.treeOp.seq;
+  ctx.fleet.get('NU-01');                                   // การค้นหาภายในไม่ทับ
+  assert.equal(ctx.fleet.structures().treeOp.seq, seq);
+  assert.equal(ctx.fleet.search('ไม่มีคันนี้').node, null);
+  assert.equal(ctx.fleet.structures().treeOp.found, false);
+
+  ctx.fleet.create({ name: 'ZZ-09', plate: '1-1 พล', capacity: 20, speedKmh: 30, route: ['d', 'g', 'i'] });
+  s = ctx.fleet.structures();
+  assert.equal(s.treeOp.op, 'insert');
+  assert.equal(s.treeOp.path.at(-1), 'ZZ-09');
+  assert.equal(s.routeOps['ZZ-09'].op, 'create');
+
+  ctx.fleet.searchStop('CITY-02', 'h');
+  assert.deepEqual(ctx.fleet.structures().routeOps['CITY-02'], { op: 'search', station: 'h', positions: [3, 6], seq: ctx.fleet.ops.seq });
+
+  ctx.fleet.retire('ZZ-09');
+  ctx.fleet.remove('ZZ-09', 'ZZ-09');
+  s = ctx.fleet.structures();
+  assert.equal(s.treeOp.op, 'delete');
+  assert.equal(s.treeOp.key, 'ZZ-09');
+  assert.equal(s.treeOp.successor, null);
+  assert.equal(s.treeOp.child, null, 'ZZ-09 เป็นใบ');
+  assert.equal(s.routeOps['ZZ-09'], undefined);
+});

@@ -175,3 +175,29 @@ pre { margin: 0; padding: 10px 12px; background: var(--surface-2); border-radius
 .alert button { border: 0; background: #fff; color: var(--ink); padding: 5px 12px; font-size: 13.5px; white-space: nowrap; }
 [data-view="rider"] .alert-bar { left: auto; right: 16px; transform: none; width: min(460px, calc(100% - 456px)); }
 @media (max-width: 960px) { [data-view="rider"] .alert-bar { left: 12px; right: 12px; width: auto; } }
+
+/* ---------- โครงสร้างข้อมูล ---------- */
+.ds-op { margin: 0; font-size: 14px; min-height: 1.5em; }
+.ds-op b { margin-right: 4px; }
+.ds-canvas { overflow-x: auto; padding: 6px 0; }
+.ds-canvas svg { display: block; max-width: 100%; height: auto; margin: 0 auto; font-family: var(--f-body); }
+.ds-canvas.ring svg { max-width: 380px; }
+.bst-edges line { stroke: var(--line); stroke-width: 2; }
+.bst-edges line.on { stroke: var(--ink); stroke-width: 3.5; }
+.bst-node text { fill: #fff; font-size: 13px; font-weight: 700; text-anchor: middle; }
+.bst-node.off text { fill: var(--faint); }
+.bst-node.on rect { stroke: var(--ink); stroke-width: 2.5; }
+.bst-node.hit rect { stroke: var(--ink); stroke-width: 4; }
+.bst-node .step { fill: var(--ink); stroke: var(--surface); stroke-width: 2; }
+.bst-node .step-n { fill: #fff; font-size: 11px; }
+.ring-arrows line { stroke: var(--faint); stroke-width: 2; }
+.ring-arrows line.closing { stroke-dasharray: 5 4; }
+.ring-arrows line.on { stroke: var(--ink); stroke-width: 3.5; stroke-dasharray: none; }
+.ring-node circle { fill: var(--surface); stroke: var(--c); stroke-width: 3.5; }
+.ring-node text { font-size: 14px; font-weight: 700; text-anchor: middle; fill: var(--ink); }
+.ring-node text.ix { font-size: 11px; font-weight: 500; fill: var(--faint); }
+.ring-node.cur circle { fill: var(--c); }
+.ring-node.cur text:not(.ix) { fill: #fff; }
+.ring-node.next circle { stroke-dasharray: 4 3; }
+.ring-node.on circle { stroke: var(--ink); stroke-width: 5; }
+.ring-tag { font-size: 12.5px; font-weight: 600; text-anchor: middle; fill: var(--ink); }

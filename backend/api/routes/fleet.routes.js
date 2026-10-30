@@ -6,9 +6,12 @@ module.exports = function register(router, ctx) {
 
   router.get('/api/buses/search', ({ query }) => {
     const name = (query.get('name') || '').trim();
-    const r = ctx.fleet.find(name);
+    const r = ctx.fleet.search(name);
     return { found: !!r.node, bus: r.node ? view(r.node.bus) : null, comparisons: r.path.length };
   });
+
+  // ภาพโครงสร้างข้อมูล: ต้นไม้ BST ของรถ + การทำงานล่าสุดของต้นไม้และของแต่ละเส้นทาง
+  router.get('/api/structures', () => ctx.fleet.structures());
 
   router.get('/api/buses/:name', ({ params }) => view(ctx.fleet.get(params.name)));
 

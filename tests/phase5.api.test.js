@@ -180,3 +180,14 @@ test('ปลายทางที่ไม่มี / OPTIONS (CORS)', async () 
   assert.equal(o.status, 204);
   assert.match(o.headers['access-control-allow-headers'], /X-Device-Key/);
 });
+
+test('โครงสร้างข้อมูล: /api/structures และการค้นหาผ่าน API ถูกบันทึก', async () => {
+  await api(port, 'GET', '/api/buses/search?name=NU-01');
+  const r = await api(port, 'GET', '/api/structures');
+  assert.equal(r.status, 200);
+  assert.ok(r.data.tree && r.data.tree.name && 'left' in r.data.tree && 'status' in r.data.tree);
+  assert.equal(r.data.treeOp.op, 'search');
+  assert.equal(r.data.treeOp.key, 'NU-01');
+  assert.ok(Array.isArray(r.data.treeOp.path));
+  assert.equal(typeof r.data.routeOps, 'object');
+});

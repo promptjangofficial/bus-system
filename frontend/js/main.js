@@ -11,6 +11,7 @@ import { updateAlerts } from './ui/alert-bar.js';
 import { renderFleet, updateFleet, mountFleetEvents, selectBus } from './ui/fleet-panel.js';
 import { renderAdd, mountAddEvents, addStop } from './ui/add-panel.js';
 import { renderDevices, updateDevices, mountDeviceEvents } from './ui/device-panel.js';
+import { renderDs, updateDs, mountDsEvents } from './ui/ds-panel.js';
 import { toast } from './ui/common.js';
 
 const el = {
@@ -27,6 +28,7 @@ const PANELS = {
   fleet:   { render: renderFleet,   update: updateFleet },
   add:     { render: renderAdd,     update: () => {} },
   devices: { render: renderDevices, update: updateDevices },
+  ds:      { render: renderDs,      update: updateDs },
 };
 
 const focusBus = name => { const b = busOf(name); if (b?.lat != null) mapView.focus(b.lat, b.lng); };
@@ -122,6 +124,7 @@ mountStationCard(el.card);
 mountFleetEvents(el.body, { onFocusBus: focusBus });
 mountAddEvents(el.body, { onCreated: name => { setUI({ tab: 'fleet' }); selectBus(name); } });
 mountDeviceEvents(el.body);
+mountDsEvents(el.body);
 
 async function boot() {
   try {

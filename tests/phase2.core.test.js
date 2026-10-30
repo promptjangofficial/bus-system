@@ -185,3 +185,21 @@ test('เข้ากับเฟส 1: รถตั้งต้นทุกค�
   }
   assert.equal(t.count, 3);
 });
+
+test('BST: shape ให้โครงต้นไม้สำหรับวาด และ successorName บอกตัวแทนเมื่อลบโหนดที่มีลูกสองข้าง', () => {
+  const t = BusTree.create(bus('M'));
+  ['D', 'T', 'B', 'F', 'R', 'W'].forEach(n => t.insert(bus(n)));
+  const s = t.shape(b => ({ name: b.name }));
+  assert.equal(s.name, 'M');
+  assert.deepEqual([s.left.name, s.right.name], ['D', 'T']);
+  assert.deepEqual([s.left.left.name, s.left.right.name, s.right.left.name], ['B', 'F', 'R']);
+  assert.equal(s.left.left.left, null);
+  assert.equal(t.successorName('M'), 'R');   // ค่าน้อยสุดของต้นไม้ขวา
+  assert.equal(t.successorName('B'), null);  // ใบ ไม่ต้องหาตัวแทน
+  assert.equal(t.successorName('ZZ'), null);
+  assert.equal(t.onlyChildName('M'), null);  // ลูกสองข้าง ใช้ successor
+  t.delete('B');
+  assert.equal(t.onlyChildName('D'), 'F');   // เหลือลูกขวาคนเดียว
+  assert.equal(t.onlyChildName('F'), null);  // ใบ
+  assert.equal(new BusTree().shape(), null);
+});

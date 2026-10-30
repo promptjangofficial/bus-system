@@ -70,6 +70,27 @@ class BusTree {
     return bus;
   }
 
+  // ชื่อรถที่จะมาแทนเมื่อลบโหนดที่มีลูกสองข้าง (inorder successor) — ไม่มีลูกสองข้างคืน null
+  successorName(name) {
+    const n = this.search(name).node;
+    if (!n || !n.left || !n.right) return null;
+    let s = n.right;
+    while (s.left) s = s.left;
+    return s.bus.name;
+  }
+
+  // ชื่อลูกคนเดียวที่จะขึ้นมาแทนเมื่อลบโหนดที่มีลูกข้างเดียว — กรณีอื่นคืน null
+  onlyChildName(name) {
+    const n = this.search(name).node;
+    if (!n || (n.left && n.right)) return null;
+    return (n.left || n.right)?.bus.name ?? null;
+  }
+
+  // โครงต้นไม้สำหรับวาดภาพ: { ...map(bus), left, right }
+  shape(map = b => b.name, n = this.root) {
+    return n ? { ...map(n.bus), left: this.shape(map, n.left), right: this.shape(map, n.right) } : null;
+  }
+
   inorder() {
     const out = [];
     const walk = n => { if (!n) return; walk(n.left); out.push(n.bus); walk(n.right); };

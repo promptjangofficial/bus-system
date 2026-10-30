@@ -62,7 +62,7 @@ test('เข้ากับเฟส 5: ทุกฟังก์ชันใน 
     insertStop: ['CITY-02', 0, 'i'], deleteStop: ['CITY-02', 1], searchStop: ['CITY-02', 'h'],
     setSim: [{ scale: 30 }], resetSim: [], ingest: [{ bus: 'NU-01', type: 'passenger', count: 3 }],
   };
-  const order = ['network', 'stations', 'roads', 'arrivals', 'validateRoute', 'searchBus', 'createBus', 'breakdown', 'repair',
+  const order = ['network', 'stations', 'roads', 'arrivals', 'validateRoute', 'searchBus', 'structures', 'createBus', 'breakdown', 'repair',
     'modify', 'insertStop', 'deleteStop', 'searchStop', 'resume', 'retire', 'remove', 'setSim', 'ingest', 'resetSim'];
   const fns = Object.keys(api).filter(k => k !== 'deviceUrl');
   assert.deepEqual(fns.filter(k => !order.includes(k)), [], 'มีฟังก์ชันที่ยังไม่ได้ทดสอบ');

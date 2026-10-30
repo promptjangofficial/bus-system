@@ -21,6 +21,7 @@ export const api = {
   validateRoute: route => req('POST', '/api/routes/validate', { route }),
 
   searchBus:    name => req('GET', `/api/buses/search?name=${enc(name)}`),
+  structures:   () => req('GET', '/api/structures'),
   createBus:    bus => req('POST', '/api/buses', bus),
   retire:       name => req('POST', `/api/buses/${enc(name)}/retire`, {}),
   remove:       name => req('DELETE', `/api/buses/${enc(name)}`, { confirm: name }),
