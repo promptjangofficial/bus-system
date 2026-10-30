@@ -188,7 +188,6 @@ pre { margin: 0; padding: 10px 12px; background: var(--surface-2); border-radius
 .alert span:not(.plate) { flex: 1; min-width: 0; }
 .alert button { border: 0; padding: 5px 14px; background: #fff; color: var(--st-broken); font-weight: 600; font-size: 13.5px; white-space: nowrap; }
 [data-view="rider"] .alert-bar { left: auto; right: 16px; transform: none; width: min(460px, calc(100% - 456px)); }
-@media (max-width: 960px) { [data-view="rider"] .alert-bar { left: 12px; right: 12px; width: auto; } }
 
 /* ---------- โครงสร้างข้อมูล ---------- */
 .ds-op { margin: 0; font-size: 14px; min-height: 1.5em; }

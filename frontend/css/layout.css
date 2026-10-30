@@ -20,38 +20,33 @@ body { display: flex; flex-direction: column; height: 100dvh; }
   transition: grid-template-rows var(--dur-med) var(--ease-out);
 }
 [data-log="closed"] .log-drawer { grid-template-rows: auto 0px; }
-.log-body { min-height: 0; overflow: hidden; }
+.log-body { min-height: 0; overflow: hidden; contain: inline-size; }   /* ความกว้างไม่ขึ้นกับข้อความข้างใน */
 .event-log { height: 100%; overflow: auto; padding: 0 20px 10px; font-size: 13px; }
 .panel { min-width: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; background: var(--surface); border-left: 1px solid var(--line); }
 /* เนื้อในกว้างคงที่ ไม่จัดบรรทัดใหม่ระหว่างแผงเลื่อนออก */
 .panel > * { width: var(--panel-w); }
 .panel-body { min-width: 0; flex: 1; overflow: auto; padding: 20px; display: flex; flex-direction: column; gap: 24px; }
 
-/* ---------- ซ่อนแผงข้าง: แผงเลื่อนออกขวา แผนที่ขยายเต็ม ---------- */
-@media (min-width: 961px) {
+/* ---------- ซ่อนแผงข้าง (PC): แผงเลื่อนออกขวา แผนที่ขยายเต็ม ---------- */
+@media (min-width: 1180px) {
   [data-panel="closed"] .app-main { grid-template-columns: minmax(0, 1fr) 0px; }
+}
+@media (min-width: 701px) {
   /* ซ่อนจากแป้น Tab/โปรแกรมอ่านจอ หลังเลื่อนออกเสร็จ */
-  [data-panel="closed"] .panel { visibility: hidden; transition: visibility 0s var(--dur-slow); }
+  [data-panel="closed"] .panel { visibility: hidden; transition: visibility 0s var(--dur-slow), transform var(--dur-slow) var(--ease-out); }
 }
 .panel-toggle {
-  position: absolute; z-index: 640; right: 0; top: 50%; transform: translateY(-50%);
+  position: absolute; z-index: 710; right: 0; top: 50%; transform: translateY(-50%);
   width: 28px; height: 64px; padding: 0; display: grid; place-items: center;
   border: 1px solid var(--line); border-right: 0; border-radius: var(--r-md) 0 0 var(--r-md);
   background: var(--surface); color: var(--muted); font-size: 22px; line-height: 1; box-shadow: var(--shadow);
+  transition: right var(--dur-slow) var(--ease-out);
 }
 .panel-toggle:hover:not(:disabled) { color: var(--ink); border-color: var(--line); }
+/* ที่จับแผ่นล่าง: ใช้เฉพาะมือถือ */
+.sheet-handle { display: none; }
 
-@media (max-width: 960px) {
-  .app-header { height: auto; flex-wrap: wrap; padding-block: 12px; row-gap: 10px; }
-  .app-main { flex: none; grid-template-columns: minmax(0, 1fr); }
-  .panel > * { width: auto; }
-  .panel-toggle { display: none; }
-  .map-area { height: 62dvh; }
-  .panel { border-left: 0; border-top: 1px solid var(--line); }
-  .panel-body { overflow: visible; padding: 16px; }
-}
-
-/* ---------- มุมมองผู้โดยสาร: แผนที่เต็มจอ + แผ่นข้อมูล ---------- */
+/* ---------- มุมมองผู้โดยสาร (PC/แท็บเล็ต): แผนที่เต็มจอ + การ์ดลอยซ้าย ---------- */
 .rider-sheet { display: none; }
 [data-view="rider"] .ctl-only,
 [data-view="rider"] .panel,
@@ -63,19 +58,73 @@ body { display: flex; flex-direction: column; height: 100dvh; }
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 18px 20px;
 }
 
-@media (max-width: 700px) {
-  [data-view="rider"] .app-header { flex-wrap: nowrap; padding-block: 8px; }
-  [data-view="rider"] .brand small { display: none; }
-  [data-view="rider"] .brand h1 { font-size: 16px; }
-  [data-view="rider"] .app-main { flex: 1; min-height: 0; }
-  [data-view="rider"] .map-area { height: auto; min-height: 0; }
-  [data-view="rider"] .map { min-height: 38dvh; }
-  /* แผ่นข้อมูลอยู่ใต้แผนที่ ไม่บังรถบนแผนที่ */
-  [data-view="rider"] .rider-sheet {
-    position: relative; left: auto; top: auto; width: auto; flex: 0 1 auto; max-height: 52dvh;
-    border-radius: var(--r-lg) var(--r-lg) 0 0; margin-top: -20px; box-shadow: var(--shadow); padding: 14px 16px 20px;
+/* ---------- แท็บเล็ต 701–1179: แผนที่เต็มจอ แผงเป็น drawer ลอยทับด้านขวา ---------- */
+@media (min-width: 701px) and (max-width: 1179px) {
+  .app-header { flex-wrap: wrap; padding-block: 10px; row-gap: 8px; }
+  .app-header .brand small, .app-header .conn > span { display: none; }
+  .app-main { --drawer-w: min(380px, 88vw); grid-template-columns: minmax(0, 1fr); }
+  .panel {
+    position: absolute; z-index: 700; top: 12px; bottom: 12px; right: 0; width: var(--drawer-w);
+    border: 1px solid var(--line); border-right: 0; border-radius: var(--r-lg) 0 0 var(--r-lg); box-shadow: var(--shadow);
+    transition: transform var(--dur-slow) var(--ease-out);
   }
-  [data-view="rider"] .rider-sheet::before { content: ""; align-self: center; width: 40px; height: 4px; border-radius: var(--r-pill); background: var(--line); flex: none; }
-  [data-view="rider"] .leaflet-control-zoom { display: none; }
-  [data-view="rider"] .leaflet-bottom { bottom: 14px; }
+  .panel > * { width: auto; }
+  [data-panel="closed"] .panel { transform: translateX(calc(100% + 24px)); }
+  [data-panel="open"] .panel-toggle { right: var(--drawer-w); }
+  [data-view="rider"] .map-area .alert-bar { width: min(460px, calc(100% - 448px)); }
+}
+
+/* ---------- มือถือ ≤ 700: แผนที่เต็มจอ + แผ่นล่าง (ทั้งสองมุมมอง) ---------- */
+@media (max-width: 700px) {
+  /* หัวจอแถวเดียว: ป้ายสี + นาฬิกา + สลับมุมมอง + ธีม · ศูนย์ควบคุมมีแถวที่สองเป็นปุ่มเวลา (เลื่อนข้างได้) */
+  .app-header { min-height: 0; padding-block: 8px; gap: 10px; }
+  /* นำหน้าด้วย .app-header ให้ชนะ components.css ที่โหลดทีหลัง */
+  .app-header :is(.brand-text, .clock .day, .clock .s, .conn > span) { display: none; }
+  .app-header .clock .hm { font-size: 22px; }
+  .header-controls { flex-wrap: wrap; justify-content: flex-end; gap: 8px; row-gap: 8px; }
+  .app-header .seg button { padding: 5px 10px; }
+  .app-header .icon-btn { width: 36px; height: 36px; }
+  [data-view="control"] .sim-controls {
+    order: 10; flex-basis: 100%; display: flex; align-items: center; gap: 8px;
+    overflow-x: auto; scrollbar-width: none; margin-inline: -4px; padding-inline: 4px;
+  }
+  .sim-controls > * { flex: none; }
+
+  .app-main { --sheet-h: 50%; grid-template-columns: minmax(0, 1fr); }
+  .map-area { position: absolute; inset: 0; }
+  .panel-toggle, .leaflet-control-zoom { display: none; }
+  .leaflet-bottom { bottom: var(--sheet-h); transition: bottom var(--dur-slow) var(--ease-spring); }
+
+  [data-view="control"] .panel, [data-view="rider"] .rider-sheet {
+    position: absolute; z-index: 700; left: 0; right: 0; top: auto; bottom: 0; width: auto; max-height: none;
+    height: var(--sheet-h); gap: 0; padding: 0 0 env(safe-area-inset-bottom);
+    background: var(--surface); border: 1px solid var(--line); border-bottom: 0; border-radius: var(--r-lg) var(--r-lg) 0 0; box-shadow: var(--shadow);
+    transition: height var(--dur-slow) var(--ease-spring);
+  }
+  .panel > * { width: auto; }
+  .panel-body { padding: 16px; }
+  [data-view="rider"] .rider-sheet { padding-inline: 16px; }
+  [data-view="rider"] .rider-sheet > :not(.sheet-handle) + * { margin-top: 12px; }
+  .sheet-dragging :is(.panel, .rider-sheet, .log-drawer, .leaflet-bottom) { transition: none; }
+
+  .sheet-handle {
+    display: flex; justify-content: center; flex: none; width: 100%; min-height: 0; padding: 10px 0 8px;
+    border: 0; border-radius: 0; background: var(--surface); touch-action: none; cursor: grab;
+    position: sticky; top: 0; z-index: 1;
+  }
+  .sheet-handle i { width: 40px; height: 5px; border-radius: var(--r-pill); background: var(--line); }
+  .sheet-handle:hover:not(:disabled) i { background: var(--faint); }
+
+  /* บันทึกเหตุการณ์ลอยเหนือแผ่นล่าง · แผ่นเต็มจอ = ซ่อน */
+  .log-drawer {
+    position: absolute; z-index: 650; left: 12px; right: 12px; bottom: calc(var(--sheet-h) + 12px);
+    grid-template-rows: auto 160px; border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+    transition: grid-template-rows var(--dur-med) var(--ease-out), bottom var(--dur-slow) var(--ease-spring), opacity var(--dur-med);
+  }
+  [data-log="closed"] .log-drawer { right: auto; }
+  .log-drawer .log-bar { margin: 4px; }
+  [data-sheet="full"] .log-drawer { opacity: 0; pointer-events: none; }
+
+  .map-area .alert-bar, [data-view="rider"] .map-area .alert-bar { top: 10px; left: 12px; right: 12px; width: auto; transform: none; }
+  .map-area .station-card { top: 12px; left: 12px; width: calc(100% - 24px); max-height: calc(100% - var(--sheet-h) - 24px); overflow: auto; }
 }

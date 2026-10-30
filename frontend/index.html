@@ -27,12 +27,12 @@
 <body>
   <header class="app-header" id="header"></header>
 
-  <main class="app-main">
+  <main class="app-main" id="appMain">
     <section class="map-area" aria-label="แผนที่">
       <div id="map" class="map"></div>
       <div id="alertBar" class="alert-bar" role="alert" hidden></div>
       <div id="stationCard" class="station-card" hidden></div>
-      <div id="riderSheet" class="rider-sheet" aria-label="ข้อมูลรถสำหรับผู้โดยสาร"></div>
+      <div id="riderSheet" class="rider-sheet" aria-label="ข้อมูลรถสำหรับผู้โดยสาร"><button class="sheet-handle" data-act="sheetCycle" aria-label="ลากหรือแตะเพื่อปรับความสูงแผ่นข้อมูล"><i></i></button></div>
       <section class="log-drawer ctl-only" aria-label="บันทึกเหตุการณ์">
         <button class="log-bar" id="logBar" data-act="logToggle" aria-controls="eventLog"></button>
         <div class="log-body"><div id="eventLog" class="event-log" aria-live="polite"></div></div>
@@ -41,6 +41,7 @@
     </section>
 
     <aside class="panel" id="controlPanel" aria-label="แผงควบคุม">
+      <button class="sheet-handle" data-act="sheetCycle" aria-label="ลากหรือแตะเพื่อปรับความสูงแผ่นข้อมูล"><i></i></button>
       <nav class="tabs" role="tablist" id="tabs"></nav>
       <div class="panel-body" id="panelBody"></div>
     </aside>

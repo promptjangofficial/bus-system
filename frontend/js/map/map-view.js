@@ -21,7 +21,8 @@ export function createMapView(el, { onStationClick, onBusClick }) {
   const busMarkers = new Map();
   const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-  function drawNetwork() {
+  // bottomInset: ความสูงแผ่นล่างบนมือถือ ไม่ให้ป้าย/รถไปอยู่ใต้แผ่น
+  function drawNetwork({ bottomInset = 0 } = {}) {
     roadLayer.clearLayers();
     stationLayer.clearLayers();
     stationMarkers.clear();
@@ -35,7 +36,7 @@ export function createMapView(el, { onStationClick, onBusClick }) {
         .addTo(stationLayer);
       stationMarkers.set(s.code, { m, key: '' });
     }
-    if (state.stations.length) map.fitBounds(state.stations.map(s => [s.lat, s.lng]), { padding: [40, 40] });
+    if (state.stations.length) map.fitBounds(state.stations.map(s => [s.lat, s.lng]), { paddingTopLeft: [40, 40], paddingBottomRight: [40, 40 + bottomInset] });
   }
 
   function stationIcon(s, cls) {
@@ -116,6 +117,10 @@ export function createMapView(el, { onStationClick, onBusClick }) {
 
   return {
     drawNetwork, drawLines, drawRoute, markStations, updateBuses,
-    focus: (lat, lng) => map.panTo([lat, lng]),
+    // จัดให้อยู่กลางพื้นที่ที่มองเห็น (เหนือแผ่นล่าง)
+    focus: (lat, lng, bottomInset = 0) => {
+      const z = map.getZoom();
+      map.panTo(map.unproject(map.project([lat, lng], z).add([0, bottomInset / 2]), z));
+    },
   };
 }

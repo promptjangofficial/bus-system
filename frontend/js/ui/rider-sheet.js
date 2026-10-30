@@ -45,13 +45,14 @@ export function updateRider(el) {
 }
 
 export function mountRiderEvents(el, { onFocusBus }) {
-  el.innerHTML = `
+  // ต่อท้ายที่จับแผ่นล่าง (อยู่ใน index.html)
+  el.insertAdjacentHTML('beforeend', `
     <form class="row" id="rSearch" autocomplete="off">
       <input id="rName" placeholder="${RIDER.searchPlaceholder}" aria-label="ชื่อรถ">
       <button class="primary">ค้นหา</button>
     </form>
     <div id="rMsg"></div>
-    <div id="rBody"></div>`;
+    <div id="rBody"></div>`);
   el.addEventListener('click', e => {
     const pick = e.target.closest('[data-rpick]');
     if (pick) { setUI({ selected: pick.dataset.rpick, station: null, searchMsg: null }); onFocusBus(pick.dataset.rpick); return; }

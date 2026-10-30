@@ -13,6 +13,7 @@ import { renderAdd, mountAddEvents, addStop } from './ui/add-panel.js';
 import { renderDevices, updateDevices, mountDeviceEvents } from './ui/device-panel.js';
 import { renderDs, updateDs, mountDsEvents } from './ui/ds-panel.js';
 import { toast } from './ui/common.js';
+import { mountSheet } from './ui/sheet.js';
 import { currentTheme, applyTheme, saveTheme, watchSystemTheme } from './lib/theme.js';
 import { getPref, setPref, currentLayout, watchLayout, isLandscape } from './lib/prefs.js';
 import { PANEL } from './content/texts.js';
@@ -27,7 +28,10 @@ const el = {
   alerts: document.getElementById('alertBar'),
   panelToggle: document.getElementById('panelToggle'),
   logBar: document.getElementById('logBar'),
+  main: document.getElementById('appMain'),
 };
+
+const sheet = mountSheet(el.main, { isActive: () => currentLayout() === 'phone' });
 
 const PANELS = {
   fleet:   { render: renderFleet,   update: updateFleet },
@@ -36,7 +40,7 @@ const PANELS = {
   ds:      { render: renderDs,      update: updateDs },
 };
 
-const focusBus = name => { const b = busOf(name); if (b?.lat != null) mapView.focus(b.lat, b.lng); };
+const focusBus = name => { const b = busOf(name); if (b?.lat != null) mapView.focus(b.lat, b.lng, sheet.height()); };
 
 const rider = () => state.ui.view === 'rider';
 const adding = () => !rider() && state.ui.tab === 'add';
@@ -96,6 +100,7 @@ function restoreLayout() {
   const panel = getPref('panel-' + currentLayout()), log = getPref('log-' + currentLayout());
   setPanel(panel ? panel === 'open' : currentLayout() === 'pc' || isLandscape());
   setLog(log ? log === 'open' : currentLayout() !== 'phone');
+  sheet.apply();
 }
 
 let routeKey = null, linesKey = null;
@@ -188,10 +193,10 @@ async function boot() {
   } catch (err) {
     toast('โหลดข้อมูลแผนที่ไม่สำเร็จ: ' + err.message, true);
   }
-  mapView.drawNetwork();
   const asked = new URLSearchParams(location.search).get('view');
-  state.ui.view = ['rider', 'control'].includes(asked) ? asked : matchMedia('(max-width: 700px)').matches ? 'rider' : 'control';
+  state.ui.view = ['rider', 'control'].includes(asked) ? asked : currentLayout() === 'phone' ? 'rider' : 'control';
   document.body.dataset.view = state.ui.view;
+  mapView.drawNetwork({ bottomInset: sheet.height() });
   emit('ui');
   openStream(
     snap => {
