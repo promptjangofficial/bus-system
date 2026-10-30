@@ -3,7 +3,7 @@ import { MAP } from '../config.js';
 import { state, roadGeometry, busColor } from '../store.js';
 import { esc } from '../lib/format.js';
 
-const BUS_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><rect x="3" y="2.5" width="10" height="9" rx="2"/><path d="M3 7.5h10M5.5 13.5v-2M10.5 13.5v-2"/></svg>';
+const BUS_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="2.5" width="10" height="9" rx="2"/><path d="M3 7.5h10M5.5 13.5v-2M10.5 13.5v-2"/></svg>';
 
 export function createMapView(el, { onStationClick, onBusClick }) {
   const map = L.map(el, { zoomControl: false }).setView(MAP.center, MAP.zoom);
@@ -26,7 +26,7 @@ export function createMapView(el, { onStationClick, onBusClick }) {
     stationLayer.clearLayers();
     stationMarkers.clear();
     for (const r of state.roads) {
-      L.polyline(r.geometry, { color: css('--road'), weight: 2.5, opacity: .7, dashArray: '1 5', lineCap: 'round', interactive: false }).addTo(roadLayer);
+      L.polyline(r.geometry, { className: 'road-line', weight: 2.5, opacity: .7, dashArray: '1 5', lineCap: 'round', interactive: false }).addTo(roadLayer);
     }
     for (const s of state.stations) {
       const m = L.marker([s.lat, s.lng], { icon: stationIcon(s, ''), keyboard: true, title: s.name, zIndexOffset: 100 })
@@ -74,8 +74,8 @@ export function createMapView(el, { onStationClick, onBusClick }) {
       const v = codes[(i + 1) % codes.length];
       const bad = badSegments.includes(i) || !roadGeometry(u, v);
       const line = segmentLine(u, v);
-      // ขอบขาวรองใต้เส้นสี ให้อ่านออกบนแผนที่ทุกโทน
-      if (!bad) L.polyline(line, { color: '#fff', weight: 10, opacity: .9, interactive: false }).addTo(routeLayer);
+      // ขอบรองใต้เส้นสี (สีพื้นการ์ด) ให้อ่านออกบนแผนที่ทุกโทน
+      if (!bad) L.polyline(line, { className: 'route-casing', weight: 10, opacity: .9, interactive: false }).addTo(routeLayer);
       L.polyline(line, {
         color: bad ? css('--st-broken') : color, weight: bad ? 4 : 6, opacity: 1, lineCap: 'round', lineJoin: 'round',
         dashArray: bad || draft ? '2 9' : null, interactive: false,
@@ -92,12 +92,12 @@ export function createMapView(el, { onStationClick, onBusClick }) {
     });
   }
 
-  function updateBuses(list, selected) {
+  function updateBuses(list, selected, theme) {
     const seen = new Set();
     for (const b of list) {
       if (b.status === 'RETIRED' || b.lat == null) continue;
       seen.add(b.name);
-      const key = `${b.status}|${b.name === selected}|${b.positionSource}`;
+      const key = `${b.status}|${b.name === selected}|${b.positionSource}|${theme}`;
       let entry = busMarkers.get(b.name);
       if (!entry) {
         const m = L.marker([b.lat, b.lng], { icon: busIcon(b, b.name === selected), zIndexOffset: 1000, title: b.name })

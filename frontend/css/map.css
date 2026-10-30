@@ -1,24 +1,33 @@
 /* Phase 6 — สไตล์บนแผนที่ */
 .leaflet-container { background: var(--bg); font-family: var(--f-body); }
 .leaflet-tile-pane { filter: var(--tile-filter); }
-.leaflet-tooltip { font-family: var(--f-body); font-size: 13px; border-radius: 4px; border: 0; box-shadow: var(--shadow); color: var(--ink); }
-.leaflet-control-zoom a { color: var(--ink) !important; }
+.leaflet-tooltip { font-family: var(--f-body); font-size: 13px; border-radius: 4px; border: 0; box-shadow: var(--shadow); color: var(--ink); background: var(--surface); }
+.leaflet-tooltip-top::before { border-top-color: var(--surface); }
+.leaflet-tooltip-bottom::before { border-bottom-color: var(--surface); }
+.leaflet-tooltip-left::before { border-left-color: var(--surface); }
+.leaflet-tooltip-right::before { border-right-color: var(--surface); }
+.leaflet-bar a, .leaflet-bar a:hover { background: var(--surface); color: var(--ink) !important; border-color: var(--line); }
+.leaflet-control-attribution.leaflet-control { background: color-mix(in srgb, var(--surface) 82%, transparent); color: var(--muted); }
+.leaflet-control-attribution a { color: var(--accent); }
+/* เส้นที่สีขึ้นกับธีม: CSS ทับค่า stroke ที่ Leaflet ใส่ไว้ */
+.road-line { stroke: var(--road); }
+.route-casing { stroke: var(--route-casing); }
 
 /* ป้ายหยุดรถ: วงกลมขาวขอบกรมท่า */
 .st-icon { display: grid; place-items: center; }
 .st-pin { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2.5px solid var(--ink); font-size: 11.5px; font-weight: 700; color: var(--ink); line-height: 1; }
-.st-pin.is-sel { background: var(--ink); color: var(--accent-ink); transform: scale(1.25); }
-.st-pin.is-draft { background: var(--ink); color: var(--accent-ink); }
+.st-pin.is-sel { background: var(--ink); color: var(--on-ink); transform: scale(1.25); }
+.st-pin.is-draft { background: var(--ink); color: var(--on-ink); }
 
 /* รถ: ป้ายสายรถลอยบนแผนที่ */
 .bus-icon { transition: transform .26s linear; }
 .leaflet-zoom-anim .bus-icon { transition: none; }
-.bus-pin { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 5px; padding: 3px 8px 3px 5px; border-radius: 4px; background: var(--c); color: #fff; font-size: 12.5px; font-weight: 700; white-space: nowrap; box-shadow: 0 0 0 2px var(--surface), 0 2px 6px rgb(28 38 53 / .3); }
+.bus-pin { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 5px; padding: 3px 8px 3px 5px; border-radius: 4px; background: var(--c); color: var(--on-line); font-size: 12.5px; font-weight: 700; white-space: nowrap; box-shadow: 0 0 0 2px var(--surface), 0 2px 6px rgb(28 38 53 / .3); }
 .bus-pin svg { width: 14px; height: 14px; flex: none; }
-.bus-pin .gps { width: 7px; height: 7px; border-radius: 50%; background: #fff; margin-left: 1px; }
+.bus-pin .gps { width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-left: 1px; }
 .bus-pin.st-MOVING { opacity: 1; }
 .bus-pin.st-AT_STATION { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--c), 0 2px 6px rgb(28 38 53 / .3); }
 .bus-pin.st-MODIFYING { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--st-modifying); }
-.bus-pin.st-BROKEN { background: var(--st-broken); animation: pin-alert 1s ease-in-out infinite; }
+.bus-pin.st-BROKEN { background: var(--st-broken); color: #fff; animation: pin-alert 1s ease-in-out infinite; }
 .bus-pin.is-sel { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4.5px var(--ink), 0 2px 8px rgb(28 38 53 / .35); }
 @keyframes pin-alert { 50% { box-shadow: 0 0 0 2px var(--surface), 0 0 0 10px color-mix(in srgb, var(--st-broken) 22%, transparent); } }

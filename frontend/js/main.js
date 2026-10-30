@@ -13,6 +13,7 @@ import { renderAdd, mountAddEvents, addStop } from './ui/add-panel.js';
 import { renderDevices, updateDevices, mountDeviceEvents } from './ui/device-panel.js';
 import { renderDs, updateDs, mountDsEvents } from './ui/ds-panel.js';
 import { toast } from './ui/common.js';
+import { currentTheme, applyTheme, saveTheme, watchSystemTheme } from './lib/theme.js';
 
 const el = {
   header: document.getElementById('header'),
@@ -62,20 +63,28 @@ function setView(view) {
   emit('ui');
 }
 
+// สลับธีม: เปลี่ยนตัวแปร CSS แล้ววาดใหม่ทั้งหน้า (สีเส้นทาง/หมุดรถบนแผนที่ขึ้นกับธีม)
+function setTheme(theme, save = false) {
+  if (save) saveTheme(theme);
+  applyTheme(theme);
+  state.ui.theme = theme;
+  emit('ui');
+}
+
 let routeKey = null, linesKey = null;
 function syncMapRoute() {
   const ui = state.ui;
   const active = (state.snap?.buses || []).filter(b => b.status !== 'RETIRED');
-  const lk = active.map(b => b.name + ':' + b.route.join(',')).join('|');
+  const lk = ui.theme + '|' + active.map(b => b.name + ':' + b.route.join(',')).join('|');
   if (lk !== linesKey) { linesKey = lk; mapView.drawLines(active.map(b => ({ route: b.route, color: busColor(b.name) }))); }
   let key, draw;
   if (adding()) {
-    key = 'draft|' + ui.builder.join(',') + '|' + ui.builderIssues.map(i => i.segment).join(',');
+    key = ui.theme + '|draft|' + ui.builder.join(',') + '|' + ui.builderIssues.map(i => i.segment).join(',');
     draw = () => mapView.drawRoute(ui.builder, getComputedStyle(document.documentElement).getPropertyValue('--route-draft').trim(),
       { draft: true, badSegments: ui.builderIssues.map(i => i.segment) });
   } else {
     const b = selectedBus();
-    key = b && b.status !== 'RETIRED' ? 'bus|' + b.name + '|' + b.route.join(',') : 'none';
+    key = ui.theme + '|' + (b && b.status !== 'RETIRED' ? 'bus|' + b.name + '|' + b.route.join(',') : 'none');
     draw = () => mapView.drawRoute(b && b.status !== 'RETIRED' ? b.route : null, b ? busColor(b.name) : null);
   }
   if (key !== routeKey) { routeKey = key; draw(); }
@@ -101,7 +110,7 @@ subscribe(kind => {
   }
   updateHeader();
   updateAlerts(el.alerts);
-  mapView.updateBuses(state.snap?.buses || [], state.ui.selected);
+  mapView.updateBuses(state.snap?.buses || [], state.ui.selected, state.ui.theme);
   syncMapRoute();
 });
 
@@ -118,7 +127,10 @@ el.alerts.addEventListener('click', e => {
   focusBus(t.dataset.bus);
 });
 
-mountHeader(el.header, { onView: setView });
+mountHeader(el.header, { onView: setView, onTheme: theme => setTheme(theme, true) });
+state.ui.theme = currentTheme();
+applyTheme(state.ui.theme);
+watchSystemTheme(theme => setTheme(theme));
 mountRiderEvents(el.sheet, { onFocusBus: focusBus });
 mountStationCard(el.card);
 mountFleetEvents(el.body, { onFocusBus: focusBus });

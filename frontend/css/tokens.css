@@ -1,22 +1,26 @@
 /* Phase 6 — Design tokens: สี ตัวอักษร ระยะ (แก้ธีมที่ไฟล์นี้ไฟล์เดียว)
-   แนวคิด: รถเมล์ตัวถังขาวคาดแถบสีประจำสาย — พื้นผิวขาว สีจริงมีแค่สีสายรถ */
+   แนวคิด: พื้นเป็นกลางโทนนุ่ม + เขียวน้ำทะเล (teal) เป็นสีหลัก ให้สีประจำสายรถเด่นที่สุด
+   ธีมมืด: [data-theme="dark"] (สคริปต์ใน <head> ตั้งให้ก่อนวาดหน้า) · ไม่มี JS ก็ตาม prefers-color-scheme */
 :root {
-  --bg: #e8ebec;          /* พื้นคอนกรีต */
-  --surface: #ffffff;     /* ตัวถังรถ */
-  --surface-2: #f2f4f5;
-  --ink: #1c2635;         /* กรมท่า: หมวกคนขับ ป้ายจราจร */
-  --muted: #5d6877;
-  --faint: #8f99a6;
-  --line: #d5dadf;
-  --accent: var(--ink); --accent-ink: #ffffff;
-  --road: #9aa4ae; --route-draft: #1c2635;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f4;
+  --ink: #1e293b;
+  --muted: #5b6676;
+  --faint: #8b95a3;
+  --line: #dde2e8;
+  --accent: #0d9488; --accent-hover: #0f766e; --accent-ink: #ffffff;
+  --on-ink: #ffffff;      /* ตัวอักษรบนพื้นสี --ink */
+  --on-line: #ffffff;     /* ตัวอักษรบนสีประจำสาย (ป้ายสาย หมุดรถ) */
+  --road: #9aa4ae; --route-draft: #1e293b; --route-casing: #ffffff;
 
   /* สถานะ: ใช้เป็นป้ายเล็กเท่านั้น มีแค่รถเสียที่เด่น */
-  --st-moving: #3e7d5a; --st-station: #3b5f8f; --st-broken: #d42a3c;
-  --st-modifying: #9a6200; --st-retired: #8f99a6; --st-live: #0f7f86;
+  --st-moving: #2f7d55; --st-station: #3b5f8f; --st-broken: #e5484d;
+  --st-modifying: #9a6200; --st-retired: #8b95a3; --st-live: #0f7f86;
   --ok: #1d7a46;
+  --ok-ink: #14613a; --err-ink: #b42330; --warn-ink: #6e4600;
 
-  --shadow: 0 1px 2px rgb(28 38 53 / .08), 0 6px 18px rgb(28 38 53 / .10);
+  --shadow: 0 1px 2px rgb(30 41 59 / .08), 0 6px 18px rgb(30 41 59 / .10);
   --tile-filter: grayscale(1) brightness(1.06) contrast(.88);
 
   --f-body: "Anuphan", "Noto Sans Thai", system-ui, sans-serif;
@@ -27,4 +31,35 @@
   --header-h: 64px;
   --panel-w: 420px;
   color-scheme: light;
+}
+
+/* ---------- ธีมมืด: ค่าเดียวกันทั้งสองทางเข้า (ตามระบบ / กดปุ่ม) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1720; --surface: #1a2330; --surface-2: #222d3c;
+    --ink: #e6edf5; --muted: #9aa7b8; --faint: #6b7889; --line: #2c3848;
+    --accent: #2dd4bf; --accent-hover: #5eead4; --accent-ink: #0f1720;
+    --on-ink: #0f1720; --on-line: #0f1720;
+    --road: #5b6878; --route-draft: #e6edf5; --route-casing: #0f1720;
+    --st-moving: #4cc38a; --st-station: #7aa7e8; --st-broken: #e5484d;
+    --st-modifying: #f0b44c; --st-retired: #6b7889; --st-live: #2dd4bf;
+    --ok: #4cc38a; --ok-ink: #6fdca0; --err-ink: #ff9592; --warn-ink: #f5c56b;
+    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 6px 18px rgb(0 0 0 / .35);
+    /* แผนที่ OSM ขาวดำหรี่แสง ไม่กลับสี (ถนนและชื่อยังอ่านเหมือนเดิม) */
+    --tile-filter: grayscale(1) brightness(.58) contrast(1.12);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1720; --surface: #1a2330; --surface-2: #222d3c;
+  --ink: #e6edf5; --muted: #9aa7b8; --faint: #6b7889; --line: #2c3848;
+  --accent: #2dd4bf; --accent-hover: #5eead4; --accent-ink: #0f1720;
+  --on-ink: #0f1720; --on-line: #0f1720;
+  --road: #5b6878; --route-draft: #e6edf5; --route-casing: #0f1720;
+  --st-moving: #4cc38a; --st-station: #7aa7e8; --st-broken: #e5484d;
+  --st-modifying: #f0b44c; --st-retired: #6b7889; --st-live: #2dd4bf;
+  --ok: #4cc38a; --ok-ink: #6fdca0; --err-ink: #ff9592; --warn-ink: #f5c56b;
+  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 6px 18px rgb(0 0 0 / .35);
+  --tile-filter: grayscale(1) brightness(.58) contrast(1.12);
+  color-scheme: dark;
 }

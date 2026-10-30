@@ -1,16 +1,15 @@
 // Phase 6 — แถบหัว: นาฬิกาจำลอง เริ่ม/หยุด อัตราเร็ว รีเซ็ต สถานะการเชื่อมต่อ
-import { state, setUI } from '../store.js';
+import { state, setUI, busColor } from '../store.js';
 import { api } from '../lib/api.js';
-import { NETWORK_SOURCE, CLOCK_DAY, VIEWS } from '../content/texts.js';
-import { LINE_COLORS } from '../config.js';
+import { NETWORK_SOURCE, CLOCK_DAY, VIEWS, THEME } from '../content/texts.js';
 import { fmtClock } from '../lib/format.js';
 import { patch } from '../lib/dom.js';
 import { run } from './common.js';
 
-export function mountHeader(el, { onView }) {
+export function mountHeader(el, { onView, onTheme }) {
   el.innerHTML = `
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">${Object.values(LINE_COLORS).map(c => `<i style="background:${c}"></i>`).join('')}</span>
+      <span class="brand-mark" id="hdrMark" aria-hidden="true"></span>
       <span class="brand-text"><h1>ระบบเดินรถพิษณุโลก</h1><small id="hdrNet"></small></span>
     </div>
     <div class="header-controls">
@@ -21,6 +20,7 @@ export function mountHeader(el, { onView }) {
         <span id="hdrReset"></span>
       </span>
       <div class="seg view-seg" id="hdrView" role="group" aria-label="มุมมอง"></div>
+      <button class="icon-btn" data-act="themeToggle" id="hdrTheme"></button>
       <span class="conn ctl-only" id="hdrConn"><i></i><span></span></span>
     </div>`;
 
@@ -30,6 +30,7 @@ export function mountHeader(el, { onView }) {
     if (t.id === 'hdrRun') run(() => api.setSim({ running: !state.snap?.sim.running }));
     if (t.dataset.speed) run(() => api.setSim({ scale: Number(t.dataset.speed) }));
     if (t.dataset.act === 'viewSwitch') onView(t.dataset.view);
+    if (t.dataset.act === 'themeToggle') onTheme(state.ui.theme === 'dark' ? 'light' : 'dark');
     if (t.dataset.act === 'reset') setUI({ confirmReset: true });
     if (t.dataset.act === 'resetCancel') setUI({ confirmReset: false });
     if (t.dataset.act === 'resetConfirm') {
@@ -53,6 +54,9 @@ export function updateHeader() {
   patch(document.getElementById('hdrReset'), state.ui.confirmReset
     ? '<button data-act="resetConfirm" class="primary">ยืนยันรีเซ็ต</button> <button data-act="resetCancel">ยกเลิก</button>'
     : '<button data-act="reset">รีเซ็ต</button>');
+  patch(document.getElementById('hdrMark'), ['NU-01', 'AIR-03', 'CITY-02'].map(n => `<i style="background:${busColor(n)}"></i>`).join(''));
+  const theme = document.getElementById('hdrTheme'), tt = THEME[state.ui.theme];
+  if (theme.textContent !== tt.icon) { theme.textContent = tt.icon; theme.title = tt.label; theme.setAttribute('aria-label', tt.label); }
   const conn = document.getElementById('hdrConn');
   conn.classList.toggle('on', state.connected);
   conn.lastElementChild.textContent = state.connected ? 'เชื่อมต่อเซิร์ฟเวอร์' : 'ขาดการเชื่อมต่อ';

@@ -1,10 +1,10 @@
 // Phase 6 — สถานะฝั่งหน้าจอ
-import { BUS_COLORS, LINE_COLORS } from './config.js';
+import { BUS_COLORS, LINE_COLORS, BUS_COLORS_DARK, LINE_COLORS_DARK } from './config.js';
 
 export const state = {
   network: null, stations: [], roads: [], snap: null, connected: false,
   ui: {
-    view: 'control', tab: 'fleet', selected: null, station: null,
+    view: 'control', theme: 'light', tab: 'fleet', selected: null, station: null,
     builder: [], builderIssues: [],
     searchMsg: null, routeMsg: null, stopSearch: null, addMsg: null, devMsg: null,
     confirmDelete: false, confirmReset: false,
@@ -31,9 +31,11 @@ export function roadGeometry(u, v) {
   return null;
 }
 
-export function busColor(name) {
-  if (LINE_COLORS[name]) return LINE_COLORS[name];
+// สีรถตามธีมปัจจุบัน (เส้นบนแผนที่เป็น SVG ใช้ตัวแปร CSS ไม่ได้ จึงคืนค่าสีจริง)
+export function busColor(name, theme = state.ui.theme) {
+  const [lines, pool] = theme === 'dark' ? [LINE_COLORS_DARK, BUS_COLORS_DARK] : [LINE_COLORS, BUS_COLORS];
+  if (lines[name]) return lines[name];
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
-  return BUS_COLORS[h % BUS_COLORS.length];
+  return pool[h % pool.length];
 }

@@ -50,7 +50,7 @@ test('import ทุกบรรทัดชี้ไฟล์ที่มี แ
 });
 
 test('โมดูลพื้นฐานโหลดได้ใน Node (ไม่มีโค้ดที่แตะ DOM ตอนโหลด)', async () => {
-  for (const m of ['config.js', 'content/texts.js', 'lib/format.js', 'store.js', 'lib/api.js']) await load(m);
+  for (const m of ['config.js', 'content/texts.js', 'lib/format.js', 'store.js', 'lib/api.js', 'lib/theme.js']) await load(m);
 });
 
 test('เข้ากับเฟส 5: ทุกฟังก์ชันใน api.js เรียกปลายทางที่มีจริง', async () => {
@@ -159,4 +159,26 @@ test('store: หาเส้นถนนได้ทั้งสองทิศ 
   assert.equal(store.roadGeometry('a', 'z'), null);
   assert.equal(store.busColor('NU-01'), store.busColor('NU-01'));
   assert.ok(BUS_COLORS.includes(store.busColor('ทดสอบ')));
+});
+
+test('ธีมมืด: ตั้งสีครบทุกตัวแปร และสีรถมีชุดสำหรับธีมมืด', async () => {
+  const tokens = read(path.join(FRONTEND, 'css', 'tokens.css'));
+  const block = re => tokens.match(re)?.[1] || '';
+  const names = css => new Set([...css.matchAll(/(--[\w-]+):\s*#/g)].map(m => m[1]));
+  const light = names(block(/^:root \{([^}]*)\}/m));
+  const viaMedia = names(block(/:root:not\(\[data-theme="light"\]\) \{([^}]*)\}/));
+  const viaToggle = names(block(/:root\[data-theme="dark"\] \{([^}]*)\}/));
+  assert.ok(light.size > 15);
+  // ทุกสีของธีมสว่างต้องมีค่าธีมมืด ทั้งทางตามระบบและทางกดปุ่ม
+  assert.deepEqual([...light].filter(n => !viaMedia.has(n)), []);
+  assert.deepEqual([...viaMedia].sort(), [...viaToggle].sort());
+  assert.match(HTML, /localStorage\.getItem\('bus-theme'\)/);
+  assert.match(read(path.join(FRONTEND, 'js', 'lib', 'theme.js')), /const KEY = 'bus-theme'/);
+
+  const store = await load('store.js');
+  const cfg = await load('config.js');
+  assert.equal(cfg.BUS_COLORS.length, cfg.BUS_COLORS_DARK.length);
+  assert.deepEqual(Object.keys(cfg.LINE_COLORS), Object.keys(cfg.LINE_COLORS_DARK));
+  assert.equal(store.busColor('NU-01', 'dark'), cfg.LINE_COLORS_DARK['NU-01']);
+  assert.equal(store.busColor('ทดสอบ', 'dark'), cfg.BUS_COLORS_DARK[cfg.BUS_COLORS.indexOf(store.busColor('ทดสอบ', 'light'))]);
 });
