@@ -13,6 +13,7 @@ import { renderAdd, mountAddEvents, addStop } from './ui/add-panel.js';
 import { renderDevices, updateDevices, mountDeviceEvents } from './ui/device-panel.js';
 import { renderDs, updateDs, mountDsEvents } from './ui/ds-panel.js';
 import { toast } from './ui/common.js';
+import { replay } from './lib/dom.js';
 import { mountSheet } from './ui/sheet.js';
 import { currentTheme, applyTheme, saveTheme, watchSystemTheme } from './lib/theme.js';
 import { getPref, setPref, currentLayout, watchLayout, isLandscape } from './lib/prefs.js';
@@ -74,6 +75,8 @@ function setView(view) {
 // สลับธีม: เปลี่ยนตัวแปร CSS แล้ววาดใหม่ทั้งหน้า (สีเส้นทาง/หมุดรถบนแผนที่ขึ้นกับธีม)
 function setTheme(theme, save = false) {
   if (save) saveTheme(theme);
+  // ผู้ใช้กดเอง → สีค่อย ๆ เปลี่ยน (ตามระบบตอนเปิดหน้า = เปลี่ยนทันที)
+  if (save) replay(document.documentElement, 'theme-fade', 500);
   applyTheme(theme);
   state.ui.theme = theme;
   emit('ui');
@@ -103,7 +106,7 @@ function restoreLayout() {
   sheet.apply();
 }
 
-let routeKey = null, linesKey = null;
+let routeKey = null, linesKey = null, lastTab = null;
 function syncMapRoute() {
   const ui = state.ui;
   const active = (state.snap?.buses || []).filter(b => b.status !== 'RETIRED');
@@ -135,7 +138,11 @@ subscribe(kind => {
     el.card.hidden = true;
   } else {
     const panel = PANELS[state.ui.tab];
-    if (kind === 'ui') { renderTabs(); panel.render(el.body); }
+    if (kind === 'ui') {
+      renderTabs();
+      panel.render(el.body);
+      if (state.ui.tab !== lastTab) { lastTab = state.ui.tab; replay(el.body, 'enter', 700); }
+    }
     else panel.update(el.body);
     updateEventLog(el.log, el.logBar);
     updateStationCard(el.card);

@@ -6,6 +6,22 @@ export function patch(el, html) {
   cache.set(el, html);
   el.innerHTML = html;
 }
+// เล่นแอนิเมชันซ้ำ: ถอด class → บังคับคำนวณใหม่ → ใส่กลับ · ms = ถอดออกเองหลังเล่นจบ
+export function replay(el, cls, ms = 0) {
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+  if (ms) setTimeout(() => el.classList.remove(cls), ms);
+}
+// ตัวเลขนาทีที่เปลี่ยนค่า → ใส่ class flip (จำค่าเดิมตาม data-flip)
+const lastFlip = new Map();
+export function flipChanged(root) {
+  for (const n of root.querySelectorAll('[data-flip]')) {
+    const k = n.dataset.flip, v = n.textContent;
+    if (lastFlip.has(k) && lastFlip.get(k) !== v) n.classList.add('flip');
+    lastFlip.set(k, v);
+  }
+}
 export function debounce(fn, ms) {
   let t;
   return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };

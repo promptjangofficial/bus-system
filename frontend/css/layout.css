@@ -43,6 +43,7 @@ body { display: flex; flex-direction: column; height: 100dvh; }
   transition: right var(--dur-slow) var(--ease-out);
 }
 .panel-toggle:hover:not(:disabled) { color: var(--ink); border-color: var(--line); }
+.panel-toggle:active:not(:disabled) { transform: translateY(-50%) scale(.94); }
 /* ที่จับแผ่นล่าง: ใช้เฉพาะมือถือ */
 .sheet-handle { display: none; }
 

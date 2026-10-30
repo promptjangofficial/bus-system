@@ -8,7 +8,10 @@ h2 { font-size: 20px; font-weight: 700; }
 h3 { font-size: 14px; font-weight: 600; color: var(--muted); }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-pill); padding: 8px 16px; font-weight: 500; }
+button { transition: background-color var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast), transform var(--dur-fast) var(--ease-out); }
 button:hover:not(:disabled) { border-color: var(--ink); }
+/* กดแล้วย่อเล็กน้อย */
+button:active:not(:disabled) { transform: scale(.97); }
 button:disabled { opacity: .4; cursor: not-allowed; }
 input, select, textarea { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 8px 14px; min-width: 0; }
 input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
@@ -24,4 +27,15 @@ textarea { width: 100%; font-size: 13px; resize: vertical; border-radius: var(--
   button, input, select { min-height: 44px; }
   .chip button, .line-diagram button, .sheet-back, .station-card .close { min-height: 0; }
 }
+/* สลับธีม: สีค่อย ๆ เปลี่ยนทั้งหน้า (ใส่ class ชั่วคราวจาก main.js) */
+.theme-fade, .theme-fade * {
+  transition: background-color var(--dur-slow) ease, color var(--dur-slow) ease, border-color var(--dur-slow) ease,
+    fill var(--dur-slow) ease, stroke var(--dur-slow) ease, filter var(--dur-slow) ease !important;
+}
+/* เข้าหน้า/แท็บใหม่: ส่วนประกอบไล่เข้าทีละชิ้น */
+.enter > * { animation: rise var(--dur-med) var(--ease-out) both; }
+.enter > :nth-child(2) { animation-delay: 30ms; } .enter > :nth-child(3) { animation-delay: 60ms; }
+.enter > :nth-child(4) { animation-delay: 90ms; } .enter > :nth-child(5) { animation-delay: 120ms; }
+.enter > :nth-child(6) { animation-delay: 150ms; } .enter > :nth-child(n+7) { animation-delay: 180ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

@@ -93,7 +93,22 @@ export function createMapView(el, { onStationClick, onBusClick }) {
     });
   }
 
+  // รถไหลระหว่างข้อมูลแต่ละชุด: ระยะเวลาเลื่อน = ช่วงห่างจริงของข้อมูลสด (เฉลี่ยให้นิ่ง)
+  let lastList = null, lastAt = 0, glide = 0;
+  function measureGlide(list) {
+    if (list === lastList) return;   // เรียกซ้ำจากการกดปุ่ม ไม่ใช่ข้อมูลชุดใหม่
+    lastList = list;
+    const now = performance.now();
+    if (lastAt) {
+      const dt = Math.min(Math.max(now - lastAt, 100), 1000);
+      glide = glide ? glide * 0.8 + dt * 0.2 : dt;
+      el.style.setProperty('--glide', Math.round(glide) + 'ms');
+    }
+    lastAt = now;
+  }
+
   function updateBuses(list, selected, theme) {
+    measureGlide(list);
     const seen = new Set();
     for (const b of list) {
       if (b.status === 'RETIRED' || b.lat == null) continue;

@@ -3,7 +3,7 @@ import { state, setUI, emit, busOf } from '../store.js';
 import { api } from '../lib/api.js';
 import { ARRIVALS_REFRESH_MS } from '../config.js';
 import { esc } from '../lib/format.js';
-import { patch } from '../lib/dom.js';
+import { patch, flipChanged } from '../lib/dom.js';
 import { statusPill, plate, etaHTML } from './common.js';
 
 let timer = null, data = null, loadedFor = null;
@@ -49,7 +49,7 @@ export function stationBoardHTML() {
   const rows = [...data.arrivals].sort((x, y) => order(x) - order(y)).map(a => `
     <div class="arrival">${plate(a.bus)}
       <span class="info">${a.status === 'BROKEN' ? statusPill('BROKEN') : esc(arrivalNote(a))}</span>
-      ${a.status === 'BROKEN' ? '<span class="eta"></span>' : etaHTML(a.etaSec, a.here)}</div>`).join('');
+      ${a.status === 'BROKEN' ? '<span class="eta"></span>' : etaHTML(a.etaSec, a.here, 's:' + s.code + ':' + a.bus)}</div>`).join('');
   return `<h2><span class="stop-code">${esc(s.code)}</span>${esc(s.name)}</h2>
     ${rows || '<p class="muted">ไม่มีรถผ่านป้ายนี้</p>'}`;
 }
@@ -61,5 +61,5 @@ export function mountStationCard(el) {
 // การ์ดลอยบนแผนที่ (มุมมองศูนย์ควบคุม)
 export function updateStationCard(el) {
   el.hidden = !state.ui.station;
-  if (state.ui.station) patch(el, `<button class="close" data-act="closeStation" aria-label="ปิด">×</button>${stationBoardHTML()}`);
+  if (state.ui.station) { patch(el, `<button class="close" data-act="closeStation" aria-label="ปิด">×</button>${stationBoardHTML()}`); flipChanged(el); }
 }

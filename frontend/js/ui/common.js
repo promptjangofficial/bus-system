@@ -2,6 +2,7 @@
 import { STATUS_LABEL } from '../content/texts.js';
 import { state, busColor } from '../store.js';
 import { esc } from '../lib/format.js';
+import { replay } from '../lib/dom.js';
 
 export const statusPill = s => `<span class="pill st-${s}">${STATUS_LABEL[s] || s}</span>`;
 export const livePill = () => '<span class="pill st-LIVE">GPS จริง</span>';
@@ -12,12 +13,13 @@ export const plate = (name, { lg = false, off = false } = {}) =>
 export const stationOptions = selected => state.stations
   .map(s => `<option value="${esc(s.code)}"${s.code === selected ? ' selected' : ''}>${esc(s.name)} (${esc(s.code)})</option>`).join('');
 
-// เวลาถึงแบบป้ายรถเมล์: ตัวเลขนาทีใหญ่ · ไม่ถึงนาที = ใกล้ถึง
-export function etaHTML(sec, here = false) {
-  if (here) return '<span class="eta soon"><b>ถึงแล้ว</b></span>';
+// เวลาถึงแบบป้ายรถเมล์: ตัวเลขนาทีใหญ่ · ไม่ถึงนาที = ใกล้ถึง · key = ใช้พลิกตัวเลขเมื่อค่าเปลี่ยน (flipChanged)
+export function etaHTML(sec, here = false, key = '') {
+  const f = key ? ` data-flip="${esc(key)}"` : '';
+  if (here) return `<span class="eta soon"><b${f}>ถึงแล้ว</b></span>`;
   if (sec == null) return '<span class="eta"></span>';
   const m = Math.floor(sec / 60);
-  return m < 1 ? '<span class="eta soon"><b>ใกล้ถึง</b></span>' : `<span class="eta"><b>${m}</b><span>นาที</span></span>`;
+  return m < 1 ? `<span class="eta soon"><b${f}>ใกล้ถึง</b></span>` : `<span class="eta"><b${f}>${m}</b><span>นาที</span></span>`;
 }
 
 export const msgBox = m => (m ? `<div class="msg ${m.cls || ''}">${m.html ?? esc(m.text)}</div>` : '');
@@ -28,6 +30,7 @@ export function toast(text, isError = false) {
   el.textContent = text;
   el.className = 'toast' + (isError ? ' err' : '');
   el.hidden = false;
+  replay(el, 'toast-in');
   clearTimeout(timer);
   timer = setTimeout(() => { el.hidden = true; }, isError ? 4500 : 2200);
 }

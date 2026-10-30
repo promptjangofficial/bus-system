@@ -4,7 +4,7 @@ import { state, setUI, buses, selectedBus, stationName } from '../store.js';
 import { api } from '../lib/api.js';
 import { RIDER } from '../content/texts.js';
 import { esc } from '../lib/format.js';
-import { patch, $ } from '../lib/dom.js';
+import { patch, $, replay, flipChanged } from '../lib/dom.js';
 import { statusPill, plate, etaHTML, msgBox, run } from './common.js';
 import { stationBoardHTML } from './station-card.js';
 import { routeDiagramHTML } from './fleet-panel.js';
@@ -18,7 +18,7 @@ function listHTML() {
       <span class="info">${b.status === 'BROKEN' ? statusPill('BROKEN')
         : b.status === 'MODIFYING' ? statusPill('MODIFYING')
         : `ถัดไป <b>${esc(stationName(b.next))}</b>`}</span>
-      ${b.status === 'MOVING' || b.status === 'AT_STATION' ? etaHTML(b.etaSec) : '<span class="eta"></span>'}
+      ${b.status === 'MOVING' || b.status === 'AT_STATION' ? etaHTML(b.etaSec, false, 'r:' + b.name) : '<span class="eta"></span>'}
     </button>`).join('');
   return `<h2 class="sheet-title">${RIDER.listTitle}</h2>
     ${rows}
@@ -28,20 +28,26 @@ function listHTML() {
 function busHTML(b) {
   const status = b.status === 'BROKEN' ? `<div class="msg err">${RIDER.brokenNote}</div>`
     : b.status === 'MODIFYING' ? `<div class="msg warn">${RIDER.modifyingNote}</div>`
-    : `<div class="rider-next"><span class="muted">ถัดไป</span><b>${esc(stationName(b.next))}</b>${etaHTML(b.etaSec)}</div>`;
+    : `<div class="rider-next"><span class="muted">ถัดไป</span><b>${esc(stationName(b.next))}</b>${etaHTML(b.etaSec, false, 'n:' + b.name)}</div>`;
   return `${backBtn()}
     <div class="bus-head"><h2>${plate(b.name, { lg: true })}</h2>${statusPill(b.status)}</div>
     ${status}
     ${routeDiagramHTML(b, { readonly: true })}`;
 }
 
+let lastPage = null;
 export function updateRider(el) {
   const b = selectedBus();
   const home = !state.ui.station && !(b && b.status !== 'RETIRED');
+  const page = state.ui.station ? 's:' + state.ui.station : home ? 'list' : 'b:' + b.name;
   // ช่องค้นหาสร้างครั้งเดียว ไม่ถูกเขียนทับระหว่างพิมพ์ (ข้อมูลสดอัปเดตหลายครั้งต่อวินาที)
   $('#rSearch', el).hidden = !home;
   patch($('#rMsg', el), home ? msgBox(state.ui.searchMsg) : '');
-  patch($('#rBody', el), state.ui.station ? `${backBtn()}${stationBoardHTML()}` : home ? listHTML() : busHTML(b));
+  const body = $('#rBody', el);
+  patch(body, state.ui.station ? `${backBtn()}${stationBoardHTML()}` : home ? listHTML() : busHTML(b));
+  // เปลี่ยนหน้า → รายการไล่เข้าทีละแถว · ตัวเลขนาทีที่เปลี่ยน → พลิก
+  if (page !== lastPage) { lastPage = page; replay(body, 'enter', 700); }
+  flipChanged(body);
 }
 
 export function mountRiderEvents(el, { onFocusBus }) {
