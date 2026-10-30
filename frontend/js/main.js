@@ -14,6 +14,8 @@ import { renderDevices, updateDevices, mountDeviceEvents } from './ui/device-pan
 import { renderDs, updateDs, mountDsEvents } from './ui/ds-panel.js';
 import { toast } from './ui/common.js';
 import { currentTheme, applyTheme, saveTheme, watchSystemTheme } from './lib/theme.js';
+import { getPref, setPref, currentLayout, watchLayout, isLandscape } from './lib/prefs.js';
+import { PANEL } from './content/texts.js';
 
 const el = {
   header: document.getElementById('header'),
@@ -23,6 +25,7 @@ const el = {
   log: document.getElementById('eventLog'),
   sheet: document.getElementById('riderSheet'),
   alerts: document.getElementById('alertBar'),
+  panelToggle: document.getElementById('panelToggle'),
 };
 
 const PANELS = {
@@ -69,6 +72,21 @@ function setTheme(theme, save = false) {
   applyTheme(theme);
   state.ui.theme = theme;
   emit('ui');
+}
+
+// แผงข้างซ่อนได้ (PC/แท็บเล็ต) · จำแยกตามขนาดจอ · ไม่เคยเลือก: PC และแท็บเล็ตแนวนอนเปิดไว้
+function setPanel(open, save = false) {
+  if (save) setPref('panel-' + currentLayout(), open ? 'open' : 'closed');
+  state.ui.panelOpen = open;
+  document.body.dataset.panel = open ? 'open' : 'closed';
+  const t = PANEL[open ? 'hide' : 'show'];
+  Object.assign(el.panelToggle, { textContent: t.icon, title: t.label });
+  el.panelToggle.setAttribute('aria-label', t.label);
+  el.panelToggle.setAttribute('aria-expanded', String(open));
+}
+function restorePanel() {
+  const saved = getPref('panel-' + currentLayout());
+  setPanel(saved ? saved === 'open' : currentLayout() === 'pc' || isLandscape());
 }
 
 let routeKey = null, linesKey = null;
@@ -119,6 +137,15 @@ el.tabs.addEventListener('click', e => {
   if (t) setUI({ tab: t.dataset.tab, station: t.dataset.tab === 'add' ? null : state.ui.station });
 });
 
+el.panelToggle.addEventListener('click', e => {
+  if (e.target.closest('[data-act="panelToggle"]')) setPanel(!state.ui.panelOpen, true);
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== '[' || e.ctrlKey || e.metaKey || e.altKey || rider() || currentLayout() === 'phone') return;
+  if (e.target.closest('input, textarea, select, [contenteditable]')) return;
+  setPanel(!state.ui.panelOpen, true);
+});
+
 el.alerts.addEventListener('click', e => {
   const t = e.target.closest('[data-act="alertPick"]');
   if (!t) return;
@@ -131,6 +158,8 @@ mountHeader(el.header, { onView: setView, onTheme: theme => setTheme(theme, true
 state.ui.theme = currentTheme();
 applyTheme(state.ui.theme);
 watchSystemTheme(theme => setTheme(theme));
+restorePanel();
+watchLayout(restorePanel);
 mountRiderEvents(el.sheet, { onFocusBus: focusBus });
 mountStationCard(el.card);
 mountFleetEvents(el.body, { onFocusBus: focusBus });

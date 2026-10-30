@@ -50,7 +50,7 @@ test('import ทุกบรรทัดชี้ไฟล์ที่มี แ
 });
 
 test('โมดูลพื้นฐานโหลดได้ใน Node (ไม่มีโค้ดที่แตะ DOM ตอนโหลด)', async () => {
-  for (const m of ['config.js', 'content/texts.js', 'lib/format.js', 'store.js', 'lib/api.js', 'lib/theme.js']) await load(m);
+  for (const m of ['config.js', 'content/texts.js', 'lib/format.js', 'store.js', 'lib/api.js', 'lib/theme.js', 'lib/prefs.js']) await load(m);
 });
 
 test('เข้ากับเฟส 5: ทุกฟังก์ชันใน api.js เรียกปลายทางที่มีจริง', async () => {
@@ -173,7 +173,8 @@ test('ธีมมืด: ตั้งสีครบทุกตัวแปร
   assert.deepEqual([...light].filter(n => !viaMedia.has(n)), []);
   assert.deepEqual([...viaMedia].sort(), [...viaToggle].sort());
   assert.match(HTML, /localStorage\.getItem\('bus-theme'\)/);
-  assert.match(read(path.join(FRONTEND, 'js', 'lib', 'theme.js')), /const KEY = 'bus-theme'/);
+  assert.match(read(path.join(FRONTEND, 'js', 'lib', 'prefs.js')), /const PREFIX = 'bus-'/);
+  assert.match(read(path.join(FRONTEND, 'js', 'lib', 'theme.js')), /getPref\('theme'\)/);
 
   const store = await load('store.js');
   const cfg = await load('config.js');

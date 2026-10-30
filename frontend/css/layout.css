@@ -1,22 +1,43 @@
 /* Phase 6 — โครงหน้า: หัว / แผนที่ / แผงควบคุม */
+body { display: flex; flex-direction: column; height: 100dvh; }
 .app-header {
-  height: var(--header-h); display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex: none; min-height: var(--header-h); display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding-inline: max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-right));
   background: var(--surface); border-bottom: 1px solid var(--line); position: relative; z-index: 2;
 }
 .app-main {
-  height: calc(100dvh - var(--header-h));
+  position: relative; flex: 1; min-height: 0;
   display: grid; grid-template-columns: minmax(0, 1fr) var(--panel-w);
+  transition: grid-template-columns var(--dur-slow) var(--ease-out);
 }
 .map-area { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
-.map { flex: 1; min-height: 0; }
+/* แยกชั้นของ Leaflet (z-index สูงถึง 1000) ไม่ให้ทับแผ่น/การ์ดที่ลอยอยู่ */
+.map { flex: 1; min-height: 0; isolation: isolate; }
 .event-log { height: 128px; overflow: auto; border-top: 1px solid var(--line); background: var(--surface); padding: 10px 20px; font-size: 13px; }
 .panel { min-width: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; background: var(--surface); border-left: 1px solid var(--line); }
+/* เนื้อในกว้างคงที่ ไม่จัดบรรทัดใหม่ระหว่างแผงเลื่อนออก */
+.panel > * { width: var(--panel-w); }
 .panel-body { min-width: 0; flex: 1; overflow: auto; padding: 20px; display: flex; flex-direction: column; gap: 24px; }
+
+/* ---------- ซ่อนแผงข้าง: แผงเลื่อนออกขวา แผนที่ขยายเต็ม ---------- */
+@media (min-width: 961px) {
+  [data-panel="closed"] .app-main { grid-template-columns: minmax(0, 1fr) 0px; }
+  /* ซ่อนจากแป้น Tab/โปรแกรมอ่านจอ หลังเลื่อนออกเสร็จ */
+  [data-panel="closed"] .panel { visibility: hidden; transition: visibility 0s var(--dur-slow); }
+}
+.panel-toggle {
+  position: absolute; z-index: 640; right: 0; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 64px; padding: 0; display: grid; place-items: center;
+  border: 1px solid var(--line); border-right: 0; border-radius: var(--r-md) 0 0 var(--r-md);
+  background: var(--surface); color: var(--muted); font-size: 22px; line-height: 1; box-shadow: var(--shadow);
+}
+.panel-toggle:hover:not(:disabled) { color: var(--ink); border-color: var(--line); }
 
 @media (max-width: 960px) {
   .app-header { height: auto; flex-wrap: wrap; padding-block: 12px; row-gap: 10px; }
-  .app-main { height: auto; grid-template-columns: minmax(0, 1fr); }
+  .app-main { flex: none; grid-template-columns: minmax(0, 1fr); }
+  .panel > * { width: auto; }
+  .panel-toggle { display: none; }
   .map-area { height: 62dvh; }
   .panel { border-left: 0; border-top: 1px solid var(--line); }
   .panel-body { overflow: visible; padding: 16px; }
@@ -35,11 +56,10 @@
 }
 
 @media (max-width: 700px) {
-  body[data-view="rider"] { display: flex; flex-direction: column; height: 100dvh; }
   [data-view="rider"] .app-header { flex-wrap: nowrap; padding-block: 8px; }
   [data-view="rider"] .brand small { display: none; }
   [data-view="rider"] .brand h1 { font-size: 16px; }
-  [data-view="rider"] .app-main { flex: 1; min-height: 0; height: auto; }
+  [data-view="rider"] .app-main { flex: 1; min-height: 0; }
   [data-view="rider"] .map-area { height: auto; min-height: 0; }
   [data-view="rider"] .map { min-height: 38dvh; }
   /* แผ่นข้อมูลอยู่ใต้แผนที่ ไม่บังรถบนแผนที่ */
