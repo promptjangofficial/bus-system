@@ -122,8 +122,8 @@ test('ทุก id ที่โค้ดเรียก มีอยู่ใน
   assert.deepEqual([...used].filter(id => !defined.has(id)), []);
 });
 
-test('ทุกปุ่ม data-act มีตัวจัดการ', () => {
-  const acts = new Set([...ALL_JS.matchAll(/data-act="(\w+)"/g)].map(m => m[1]));
+test('ทุกปุ่ม data-act มีตัวจัดการ (ทั้งใน JS และ index.html)', () => {
+  const acts = new Set([...(ALL_JS + HTML).matchAll(/data-act="(\w+)"/g)].map(m => m[1]));
   const handled = new Set([
     ...[...ALL_JS.matchAll(/(?:case\s+|===\s*)'(\w+)'/g)].map(m => m[1]),
     ...[...ALL_JS.matchAll(/closest\('\[data-act="(\w+)"\]'\)/g)].map(m => m[1]),
@@ -182,4 +182,27 @@ test('ธีมมืด: ตั้งสีครบทุกตัวแปร
   assert.deepEqual(Object.keys(cfg.LINE_COLORS), Object.keys(cfg.LINE_COLORS_DARK));
   assert.equal(store.busColor('NU-01', 'dark'), cfg.LINE_COLORS_DARK['NU-01']);
   assert.equal(store.busColor('ทดสอบ', 'dark'), cfg.BUS_COLORS_DARK[cfg.BUS_COLORS.indexOf(store.busColor('ทดสอบ', 'light'))]);
+});
+
+test('ขั้น 5: ปุ่มธีม / ซ่อนแผง / ยุบบันทึก / ที่จับแผ่นล่าง มีครบ และข้อความอยู่ใน texts.js', async () => {
+  for (const act of ['themeToggle', 'panelToggle', 'logToggle', 'sheetCycle']) assert.match(ALL_JS + HTML, new RegExp(`data-act="${act}"`), act);
+  const { THEME, PANEL, LOG } = await load('content/texts.js');
+  for (const t of ['light', 'dark']) assert.ok(THEME[t].icon && THEME[t].label, t);
+  for (const t of ['hide', 'show']) assert.ok(PANEL[t].icon && PANEL[t].label, t);
+  for (const k of ['title', 'empty', 'show', 'hide']) assert.ok(LOG[k], k);
+});
+
+test('ขั้น 5: ตัวอักษรบนปุ่มทึบอ่านชัด (contrast ≥ 4.5:1 ทั้งสองธีม)', () => {
+  const tokens = read(path.join(FRONTEND, 'css', 'tokens.css'));
+  const lum = hex => {
+    const c = hex.match(/\w\w/g).map(h => parseInt(h, 16) / 255).map(v => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+  const blocks = [/^:root \{([^}]*)\}/m, /:root\[data-theme="dark"\] \{([^}]*)\}/].map(re => tokens.match(re)[1]);
+  for (const css of blocks) {
+    const v = n => css.match(new RegExp(`${n}:\\s*#([0-9a-f]{6})`))[1];
+    for (const bg of ['--accent-fill', '--accent-fill-hover']) assert.ok(ratio(v('--accent-ink'), v(bg)) >= 4.5, `${bg} contrast ${ratio(v('--accent-ink'), v(bg)).toFixed(2)}`);
+  }
+  assert.match(CSS, /button\.primary \{ background: var\(--accent-fill\)/);
 });

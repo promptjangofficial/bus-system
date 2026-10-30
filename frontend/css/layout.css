@@ -63,7 +63,8 @@ body { display: flex; flex-direction: column; height: 100dvh; }
 @media (min-width: 701px) and (max-width: 1179px) {
   .app-header { flex-wrap: wrap; padding-block: 10px; row-gap: 8px; }
   .app-header .brand small, .app-header .conn > span { display: none; }
-  .app-main { --drawer-w: min(380px, 88vw); grid-template-columns: minmax(0, 1fr); }
+  /* clip: drawer ที่เลื่อนออกนอกจอไม่ทำให้หน้าเลื่อนข้างได้ */
+  .app-main { --drawer-w: min(380px, 88vw); grid-template-columns: minmax(0, 1fr); overflow: clip; }
   .panel {
     position: absolute; z-index: 700; top: 12px; bottom: 12px; right: 0; width: var(--drawer-w);
     border: 1px solid var(--line); border-right: 0; border-radius: var(--r-lg) 0 0 var(--r-lg); box-shadow: var(--shadow);

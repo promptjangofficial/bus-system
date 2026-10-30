@@ -42,6 +42,8 @@ const PANELS = {
 };
 
 const focusBus = name => { const b = busOf(name); if (b?.lat != null) mapView.focus(b.lat, b.lng, sheet.height()); };
+// เลือกรถตอนแผงซ่อนอยู่ → เปิดแผงให้เห็นรายละเอียด (ไม่จำ: ครั้งหน้ายังเปิดตามที่ผู้ใช้เลือกไว้)
+const revealPanel = () => { if (!state.ui.panelOpen && currentLayout() !== 'phone') setPanel(true); };
 
 const rider = () => state.ui.view === 'rider';
 const adding = () => !rider() && state.ui.tab === 'add';
@@ -54,6 +56,7 @@ const mapView = createMapView(document.getElementById('map'), {
   onBusClick: name => {
     if (rider()) return setUI({ selected: name, station: null, searchMsg: null });
     if (state.ui.tab !== 'fleet') state.ui.tab = 'fleet';
+    revealPanel();
     selectBus(name);
   },
 });
@@ -176,6 +179,7 @@ el.alerts.addEventListener('click', e => {
   const t = e.target.closest('[data-act="alertPick"]');
   if (!t) return;
   state.ui.tab = 'fleet';
+  revealPanel();
   selectBus(t.dataset.bus);
   focusBus(t.dataset.bus);
 });

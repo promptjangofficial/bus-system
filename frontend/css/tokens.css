@@ -10,6 +10,8 @@
   --faint: #8b95a3;
   --line: #dde2e8;
   --accent: #0d9488; --accent-hover: #0f766e; --accent-ink: #ffffff;
+  /* พื้นปุ่มทึบ/ป้ายที่มีตัวอักษรขาว: เข้มกว่า --accent ให้ contrast ≥ 4.5:1 (WCAG AA) */
+  --accent-fill: #0f766e; --accent-fill-hover: #115e59;
   --on-ink: #ffffff;      /* ตัวอักษรบนพื้นสี --ink */
   --on-line: #ffffff;     /* ตัวอักษรบนสีประจำสาย (ป้ายสาย หมุดรถ) */
   --road: #9aa4ae; --route-draft: #1e293b; --route-casing: #ffffff;
@@ -45,6 +47,7 @@
     --bg: #0f1720; --surface: #1a2330; --surface-2: #222d3c;
     --ink: #e6edf5; --muted: #9aa7b8; --faint: #6b7889; --line: #2c3848;
     --accent: #2dd4bf; --accent-hover: #5eead4; --accent-ink: #0f1720;
+    --accent-fill: #2dd4bf; --accent-fill-hover: #5eead4;
     --on-ink: #0f1720; --on-line: #0f1720;
     --road: #5b6878; --route-draft: #e6edf5; --route-casing: #0f1720;
     --st-moving: #4cc38a; --st-station: #7aa7e8; --st-broken: #e5484d;
@@ -52,7 +55,7 @@
     --ok: #4cc38a; --ok-ink: #6fdca0; --err-ink: #ff9592; --warn-ink: #f5c56b;
     --shadow: 0 8px 24px rgb(0 0 0 / .40);
     /* แผนที่ OSM ขาวดำหรี่แสง ไม่กลับสี (ถนนและชื่อยังอ่านเหมือนเดิม) */
-    --tile-filter: grayscale(1) brightness(.58) contrast(1.12);
+    --tile-filter: grayscale(1) brightness(.45) contrast(1.2);
     color-scheme: dark;
   }
 }
@@ -60,12 +63,13 @@
   --bg: #0f1720; --surface: #1a2330; --surface-2: #222d3c;
   --ink: #e6edf5; --muted: #9aa7b8; --faint: #6b7889; --line: #2c3848;
   --accent: #2dd4bf; --accent-hover: #5eead4; --accent-ink: #0f1720;
+  --accent-fill: #2dd4bf; --accent-fill-hover: #5eead4;
   --on-ink: #0f1720; --on-line: #0f1720;
   --road: #5b6878; --route-draft: #e6edf5; --route-casing: #0f1720;
   --st-moving: #4cc38a; --st-station: #7aa7e8; --st-broken: #e5484d;
   --st-modifying: #f0b44c; --st-retired: #6b7889; --st-live: #2dd4bf;
   --ok: #4cc38a; --ok-ink: #6fdca0; --err-ink: #ff9592; --warn-ink: #f5c56b;
   --shadow: 0 8px 24px rgb(0 0 0 / .40);
-  --tile-filter: grayscale(1) brightness(.58) contrast(1.12);
+  --tile-filter: grayscale(1) brightness(.45) contrast(1.2);
   color-scheme: dark;
 }
