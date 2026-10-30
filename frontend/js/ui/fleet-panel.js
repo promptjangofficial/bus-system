@@ -60,8 +60,8 @@ function detailLiveHTML(b) {
 }
 
 // ผังเส้นทางแนวตั้ง: แถบสีสายลากผ่านทุกจุดแวะ แล้ววนกลับจุดแรก (Circular Linked List)
-function routeDiagramHTML(b) {
-  const mod = b.status === 'MODIFYING';
+export function routeDiagramHTML(b, { readonly = false } = {}) {
+  const mod = b.status === 'MODIFYING' && !readonly;
   const moving = b.status === 'MOVING';
   const stops = b.route.map((c, i) => {
     const cur = i === b.currentIndex && b.status !== 'RETIRED';

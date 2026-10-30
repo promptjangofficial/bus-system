@@ -1,13 +1,13 @@
 // Phase 6 — แถบหัว: นาฬิกาจำลอง เริ่ม/หยุด อัตราเร็ว รีเซ็ต สถานะการเชื่อมต่อ
 import { state, setUI } from '../store.js';
 import { api } from '../lib/api.js';
-import { NETWORK_SOURCE, CLOCK_DAY } from '../content/texts.js';
+import { NETWORK_SOURCE, CLOCK_DAY, VIEWS } from '../content/texts.js';
 import { LINE_COLORS } from '../config.js';
 import { fmtClock } from '../lib/format.js';
 import { patch } from '../lib/dom.js';
 import { run } from './common.js';
 
-export function mountHeader(el) {
+export function mountHeader(el, { onView }) {
   el.innerHTML = `
     <div class="brand">
       <span class="brand-mark" aria-hidden="true">${Object.values(LINE_COLORS).map(c => `<i style="background:${c}"></i>`).join('')}</span>
@@ -15,10 +15,13 @@ export function mountHeader(el) {
     </div>
     <div class="header-controls">
       <span class="clock" id="hdrClock" aria-label="เวลาจำลอง"><span class="day">${CLOCK_DAY}</span><span class="hm">--:--</span><span class="s">--</span></span>
-      <button class="primary" id="hdrRun"></button>
-      <div class="seg" id="hdrSpeed" role="group" aria-label="อัตราเร็วเวลาจำลอง"></div>
-      <span id="hdrReset"></span>
-      <span class="conn" id="hdrConn"><i></i><span></span></span>
+      <span class="sim-controls ctl-only">
+        <button class="primary" id="hdrRun"></button>
+        <div class="seg" id="hdrSpeed" role="group" aria-label="อัตราเร็วเวลาจำลอง"></div>
+        <span id="hdrReset"></span>
+      </span>
+      <div class="seg view-seg" id="hdrView" role="group" aria-label="มุมมอง"></div>
+      <span class="conn ctl-only" id="hdrConn"><i></i><span></span></span>
     </div>`;
 
   el.addEventListener('click', e => {
@@ -26,6 +29,7 @@ export function mountHeader(el) {
     if (!t) return;
     if (t.id === 'hdrRun') run(() => api.setSim({ running: !state.snap?.sim.running }));
     if (t.dataset.speed) run(() => api.setSim({ scale: Number(t.dataset.speed) }));
+    if (t.dataset.act === 'viewSwitch') onView(t.dataset.view);
     if (t.dataset.act === 'reset') setUI({ confirmReset: true });
     if (t.dataset.act === 'resetCancel') setUI({ confirmReset: false });
     if (t.dataset.act === 'resetConfirm') {
@@ -44,6 +48,8 @@ export function updateHeader() {
   document.getElementById('hdrRun').textContent = sim?.running ? 'หยุดชั่วคราว' : 'เริ่มเดินรถ';
   patch(document.getElementById('hdrSpeed'), (sim?.scales || []).map(s =>
     `<button data-speed="${s}" aria-pressed="${sim.scale === s}">${s}×</button>`).join(''));
+  patch(document.getElementById('hdrView'), VIEWS.map(([k, label]) =>
+    `<button data-act="viewSwitch" data-view="${k}" aria-pressed="${state.ui.view === k}">${label}</button>`).join(''));
   patch(document.getElementById('hdrReset'), state.ui.confirmReset
     ? '<button data-act="resetConfirm" class="primary">ยืนยันรีเซ็ต</button> <button data-act="resetCancel">ยกเลิก</button>'
     : '<button data-act="reset">รีเซ็ต</button>');

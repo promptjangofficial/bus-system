@@ -4,7 +4,7 @@ import { BUS_COLORS, LINE_COLORS } from './config.js';
 export const state = {
   network: null, stations: [], roads: [], snap: null, connected: false,
   ui: {
-    tab: 'fleet', selected: null, station: null,
+    view: 'control', tab: 'fleet', selected: null, station: null,
     builder: [], builderIssues: [],
     searchMsg: null, routeMsg: null, stopSearch: null, addMsg: null, devMsg: null,
     confirmDelete: false, confirmReset: false,

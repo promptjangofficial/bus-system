@@ -12,6 +12,14 @@ export const plate = (name, { lg = false, off = false } = {}) =>
 export const stationOptions = selected => state.stations
   .map(s => `<option value="${esc(s.code)}"${s.code === selected ? ' selected' : ''}>${esc(s.name)} (${esc(s.code)})</option>`).join('');
 
+// เวลาถึงแบบป้ายรถเมล์: ตัวเลขนาทีใหญ่ · ไม่ถึงนาที = ใกล้ถึง
+export function etaHTML(sec, here = false) {
+  if (here) return '<span class="eta soon"><b>ถึงแล้ว</b></span>';
+  if (sec == null) return '<span class="eta"></span>';
+  const m = Math.floor(sec / 60);
+  return m < 1 ? '<span class="eta soon"><b>ใกล้ถึง</b></span>' : `<span class="eta"><b>${m}</b><span>นาที</span></span>`;
+}
+
 export const msgBox = m => (m ? `<div class="msg ${m.cls || ''}">${m.html ?? esc(m.text)}</div>` : '');
 
 let timer;

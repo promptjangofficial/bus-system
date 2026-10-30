@@ -138,6 +138,21 @@ test('แก้ไขเส้นทาง: ขอตอนวิ่ง → ห�
   assert.equal(b.status, STATUS.MOVING);
 });
 
+test('เวลาถึงสถานี: ทุกคันที่ผ่านมีเวลาถึง ป้ายไกลกว่าใช้เวลานานกว่า รถเสียไม่มีเวลาถึง', async () => {
+  const ctx = await freshApp();
+  advance(ctx, config.DWELL_SEC + 5);                       // ทุกคันออกจากป้ายแรกแล้ว
+  const at = code => ctx.sim.arrivalsAt(code).find(a => a.bus === 'NU-01');
+  const b = bus(ctx, 'NU-01');                              // a → b → e → d …
+  assert.equal(b.route.current.next.code, 'b');
+  const toB = at('b'), toE = at('e'), toD = at('d');
+  assert.ok(toB.nextHere && Math.abs(toB.etaSec - ctx.sim.eta(b)) < 1e-6);
+  assert.ok(toE.etaSec > toB.etaSec + config.DWELL_SEC, 'ต้องรวมเวลาจอดที่ป้ายระหว่างทาง');
+  assert.ok(toD.etaSec > toE.etaSec);
+  for (const code of ['d', 'g', 'h']) for (const a of ctx.sim.arrivalsAt(code)) assert.ok(a.etaSec >= 0, `${a.bus} → ${code}`);
+  ctx.fleet.breakdown('NU-01');
+  assert.equal(at('d').etaSec, null);
+});
+
 test('ฉากวิดีโอ: AIR-03 แทรก ม.นเรศวร หลัง รพ.พุทธชินราช แล้วตรวจเส้นทางผ่าน', async () => {
   const ctx = await freshApp();
   const b = bus(ctx, 'AIR-03');

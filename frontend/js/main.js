@@ -5,7 +5,9 @@ import { TABS } from './content/texts.js';
 import { createMapView } from './map/map-view.js';
 import { mountHeader, updateHeader } from './ui/header.js';
 import { updateEventLog } from './ui/event-log.js';
-import { mountStationCard, updateStationCard } from './ui/station-card.js';
+import { mountStationCard, updateStationCard, syncStation } from './ui/station-card.js';
+import { updateRider, mountRiderEvents } from './ui/rider-sheet.js';
+import { updateAlerts } from './ui/alert-bar.js';
 import { renderFleet, updateFleet, mountFleetEvents, selectBus } from './ui/fleet-panel.js';
 import { renderAdd, mountAddEvents, addStop } from './ui/add-panel.js';
 import { renderDevices, updateDevices, mountDeviceEvents } from './ui/device-panel.js';
@@ -17,6 +19,8 @@ const el = {
   body: document.getElementById('panelBody'),
   card: document.getElementById('stationCard'),
   log: document.getElementById('eventLog'),
+  sheet: document.getElementById('riderSheet'),
+  alerts: document.getElementById('alertBar'),
 };
 
 const PANELS = {
@@ -27,13 +31,34 @@ const PANELS = {
 
 const focusBus = name => { const b = busOf(name); if (b?.lat != null) mapView.focus(b.lat, b.lng); };
 
+const rider = () => state.ui.view === 'rider';
+const adding = () => !rider() && state.ui.tab === 'add';
+
 const mapView = createMapView(document.getElementById('map'), {
   onStationClick: code => {
-    if (state.ui.tab === 'add') return addStop(code);
-    setUI({ station: state.ui.station === code ? null : code });
+    if (adding()) return addStop(code);
+    setUI({ station: state.ui.station === code ? null : code, ...(rider() ? { selected: null } : {}) });
   },
-  onBusClick: name => { if (state.ui.tab !== 'fleet') state.ui.tab = 'fleet'; selectBus(name); },
+  onBusClick: name => {
+    if (rider()) return setUI({ selected: name, station: null, searchMsg: null });
+    if (state.ui.tab !== 'fleet') state.ui.tab = 'fleet';
+    selectBus(name);
+  },
 });
+
+// สลับมุมมอง: ผู้โดยสารเริ่มจากรายการรถทุกสาย · ศูนย์ควบคุมเลือกรถคันแรกไว้ให้
+function setView(view) {
+  const firstBus = () => state.snap?.buses.find(b => b.status !== 'RETIRED')?.name || null;
+  state.ui.view = view;
+  document.body.dataset.view = view;
+  Object.assign(state.ui, view === 'rider'
+    ? { selected: null, station: null, searchMsg: null }
+    : { selected: state.ui.selected || firstBus(), searchMsg: null });
+  const url = new URL(location.href);
+  url.searchParams.set('view', view);
+  history.replaceState(null, '', url);
+  emit('ui');
+}
 
 let routeKey = null, linesKey = null;
 function syncMapRoute() {
@@ -42,7 +67,7 @@ function syncMapRoute() {
   const lk = active.map(b => b.name + ':' + b.route.join(',')).join('|');
   if (lk !== linesKey) { linesKey = lk; mapView.drawLines(active.map(b => ({ route: b.route, color: busColor(b.name) }))); }
   let key, draw;
-  if (ui.tab === 'add') {
+  if (adding()) {
     key = 'draft|' + ui.builder.join(',') + '|' + ui.builderIssues.map(i => i.segment).join(',');
     draw = () => mapView.drawRoute(ui.builder, getComputedStyle(document.documentElement).getPropertyValue('--route-draft').trim(),
       { draft: true, badSegments: ui.builderIssues.map(i => i.segment) });
@@ -52,7 +77,7 @@ function syncMapRoute() {
     draw = () => mapView.drawRoute(b && b.status !== 'RETIRED' ? b.route : null, b ? busColor(b.name) : null);
   }
   if (key !== routeKey) { routeKey = key; draw(); }
-  mapView.markStations(ui.station, ui.tab === 'add' ? ui.builder : []);
+  mapView.markStations(ui.station, adding() ? ui.builder : []);
 }
 
 function renderTabs() {
@@ -61,12 +86,19 @@ function renderTabs() {
 }
 
 subscribe(kind => {
-  const panel = PANELS[state.ui.tab];
-  if (kind === 'ui') { renderTabs(); panel.render(el.body); }
-  else panel.update(el.body);
+  syncStation();
+  if (rider()) {
+    updateRider(el.sheet);
+    el.card.hidden = true;
+  } else {
+    const panel = PANELS[state.ui.tab];
+    if (kind === 'ui') { renderTabs(); panel.render(el.body); }
+    else panel.update(el.body);
+    updateEventLog(el.log);
+    updateStationCard(el.card);
+  }
   updateHeader();
-  updateEventLog(el.log);
-  updateStationCard(el.card);
+  updateAlerts(el.alerts);
   mapView.updateBuses(state.snap?.buses || [], state.ui.selected);
   syncMapRoute();
 });
@@ -76,7 +108,16 @@ el.tabs.addEventListener('click', e => {
   if (t) setUI({ tab: t.dataset.tab, station: t.dataset.tab === 'add' ? null : state.ui.station });
 });
 
-mountHeader(el.header);
+el.alerts.addEventListener('click', e => {
+  const t = e.target.closest('[data-act="alertPick"]');
+  if (!t) return;
+  state.ui.tab = 'fleet';
+  selectBus(t.dataset.bus);
+  focusBus(t.dataset.bus);
+});
+
+mountHeader(el.header, { onView: setView });
+mountRiderEvents(el.sheet, { onFocusBus: focusBus });
 mountStationCard(el.card);
 mountFleetEvents(el.body, { onFocusBus: focusBus });
 mountAddEvents(el.body, { onCreated: name => { setUI({ tab: 'fleet' }); selectBus(name); } });
@@ -90,17 +131,19 @@ async function boot() {
     toast('โหลดข้อมูลแผนที่ไม่สำเร็จ: ' + err.message, true);
   }
   mapView.drawNetwork();
+  const asked = new URLSearchParams(location.search).get('view');
+  state.ui.view = ['rider', 'control'].includes(asked) ? asked : matchMedia('(max-width: 700px)').matches ? 'rider' : 'control';
+  document.body.dataset.view = state.ui.view;
   emit('ui');
   openStream(
     snap => {
       const first = !state.snap;
       state.snap = snap;
-      if (first && !state.ui.selected) state.ui.selected = snap.buses.find(b => b.status !== 'RETIRED')?.name || null;
+      if (first && !rider() && !state.ui.selected) state.ui.selected = snap.buses.find(b => b.status !== 'RETIRED')?.name || null;
       if (state.ui.selected && !busOf(state.ui.selected)) state.ui.selected = null;
       emit(first ? 'ui' : 'snap');
     },
     on => { state.connected = on; updateHeader(); },
   );
-  window.addEventListener('resize', () => mapView.invalidate());
 }
 boot();

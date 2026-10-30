@@ -21,3 +21,33 @@
   .panel { border-left: 0; border-top: 1px solid var(--line); }
   .panel-body { overflow: visible; padding: 16px; }
 }
+
+/* ---------- มุมมองผู้โดยสาร: แผนที่เต็มจอ + แผ่นข้อมูล ---------- */
+.rider-sheet { display: none; }
+[data-view="rider"] .ctl-only,
+[data-view="rider"] .panel,
+[data-view="rider"] .event-log { display: none; }
+[data-view="rider"] .app-main { grid-template-columns: minmax(0, 1fr); }
+[data-view="rider"] .rider-sheet {
+  display: flex; flex-direction: column; gap: 12px;
+  position: absolute; z-index: 600; left: 16px; top: 16px; width: 400px; max-height: calc(100% - 32px); overflow: auto;
+  background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); padding: 18px 20px;
+}
+
+@media (max-width: 700px) {
+  body[data-view="rider"] { display: flex; flex-direction: column; height: 100dvh; }
+  [data-view="rider"] .app-header { flex-wrap: nowrap; padding-block: 8px; }
+  [data-view="rider"] .brand small { display: none; }
+  [data-view="rider"] .brand h1 { font-size: 16px; }
+  [data-view="rider"] .app-main { flex: 1; min-height: 0; height: auto; }
+  [data-view="rider"] .map-area { height: auto; min-height: 0; }
+  [data-view="rider"] .map { min-height: 38dvh; }
+  /* แผ่นข้อมูลอยู่ใต้แผนที่ ไม่บังรถบนแผนที่ */
+  [data-view="rider"] .rider-sheet {
+    position: relative; left: auto; top: auto; width: auto; flex: 0 1 auto; max-height: 52dvh;
+    border-radius: 14px 14px 0 0; margin-top: -14px; box-shadow: 0 -4px 16px rgb(28 38 53 / .12); padding: 14px 16px 20px;
+  }
+  [data-view="rider"] .rider-sheet::before { content: ""; align-self: center; width: 40px; height: 4px; border-radius: 2px; background: var(--line); flex: none; }
+  [data-view="rider"] .leaflet-control-zoom { display: none; }
+  [data-view="rider"] .leaflet-bottom { bottom: 14px; }
+}

@@ -126,6 +126,17 @@ class Simulation {
     return Math.max(0, bus.dwellSec) + km / bus.speedKmh * 3600;
   }
 
+  // วินาทีจนรถถึงสถานี code ครั้งถัดไป: เวลาถึงป้ายถัดไป แล้วบวก (จอด + วิ่ง) ทีละช่วงตาม next ของ Circular Linked List
+  etaTo(bus, code) {
+    let t = this.eta(bus);
+    if (t == null) return null;
+    let n = bus.route.current.next;
+    for (let i = 0; i < bus.route.size && n.code !== code; i++, n = n.next) {
+      t += config.DWELL_SEC + this.graph.edge(n.code, n.next.code).km / bus.speedKmh * 3600;
+    }
+    return n.code === code ? t : null;
+  }
+
   view(bus) {
     const retired = bus.status === STATUS.RETIRED;
     const live = !retired && this.isLive(bus);
@@ -171,11 +182,12 @@ class Simulation {
       .filter(x => x.positions.length)
       .map(({ bus, positions }) => {
         const v = this.view(bus);
+        const here = v.current === code && bus.status !== STATUS.MOVING;
         return {
           bus: bus.name, positions, status: bus.status,
-          here: v.current === code && bus.status !== STATUS.MOVING,
+          here,
           nextHere: v.next === code,
-          etaSec: v.next === code ? v.etaSec : null,
+          etaSec: here ? 0 : this.etaTo(bus, code),
           etaBasis: v.etaBasis,
         };
       });

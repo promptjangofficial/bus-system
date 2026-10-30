@@ -8,6 +8,8 @@ const BUS_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width
 export function createMapView(el, { onStationClick, onBusClick }) {
   const map = L.map(el, { zoomControl: false }).setView(MAP.center, MAP.zoom);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
+  // ขนาดแผนที่เปลี่ยนตามมุมมอง/แผ่นข้อมูล ไม่ใช่แค่ตอนย่อหน้าต่าง
+  new ResizeObserver(() => map.invalidateSize()).observe(el);
   L.tileLayer(MAP.tiles, { maxZoom: 19, subdomains: MAP.subdomains, attribution: MAP.attribution }).addTo(map);
 
   const roadLayer = L.layerGroup().addTo(map);
@@ -115,6 +117,5 @@ export function createMapView(el, { onStationClick, onBusClick }) {
   return {
     drawNetwork, drawLines, drawRoute, markStations, updateBuses,
     focus: (lat, lng) => map.panTo([lat, lng]),
-    invalidate: () => map.invalidateSize(),
   };
 }

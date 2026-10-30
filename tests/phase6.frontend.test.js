@@ -104,6 +104,15 @@ test('แท็บทุกอันมีแผงรองรับ', async ()
   for (const [k] of TABS) assert.match(panels, new RegExp(`\\b${k}:`), `แท็บ ${k} ไม่มีแผง`);
 });
 
+test('มุมมองผู้โดยสาร/ศูนย์ควบคุม: ทุกมุมมองมีปุ่มสลับและมีสไตล์ ปุ่มแจ้งรถเสีย/แก้เส้นทางยังมีชื่อตามบทวิดีโอ', async () => {
+  const { VIEWS } = await load('content/texts.js');
+  assert.deepEqual(VIEWS.map(([k]) => k), ['rider', 'control']);
+  const main = read(path.join(FRONTEND, 'js', 'main.js'));
+  for (const [k] of VIEWS) assert.match(main, new RegExp(`'${k}'`), `main.js ไม่รู้จักมุมมอง ${k}`);
+  assert.match(CSS, /\[data-view="rider"\]/);
+  for (const label of ['แจ้งรถเสีย', 'แก้ไขเส้นทาง', 'ตรวจสอบเส้นทางและเดินรถต่อ']) assert.ok(ALL_JS.includes(`>${label}<`), label);
+});
+
 test('ทุก id ที่โค้ดเรียก มีอยู่ใน HTML หรือ template', () => {
   const defined = new Set([...(HTML + ALL_JS).matchAll(/id="([\w-]+)"/g)].map(m => m[1]));
   const used = new Set([
