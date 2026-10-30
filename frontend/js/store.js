@@ -1,5 +1,5 @@
 // Phase 6 — สถานะฝั่งหน้าจอ
-import { BUS_COLORS } from './config.js';
+import { BUS_COLORS, LINE_COLORS } from './config.js';
 
 export const state = {
   network: null, stations: [], roads: [], snap: null, connected: false,
@@ -32,6 +32,7 @@ export function roadGeometry(u, v) {
 }
 
 export function busColor(name) {
+  if (LINE_COLORS[name]) return LINE_COLORS[name];
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
   return BUS_COLORS[h % BUS_COLORS.length];

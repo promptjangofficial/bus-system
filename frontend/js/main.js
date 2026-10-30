@@ -35,9 +35,12 @@ const mapView = createMapView(document.getElementById('map'), {
   onBusClick: name => { if (state.ui.tab !== 'fleet') state.ui.tab = 'fleet'; selectBus(name); },
 });
 
-let routeKey = null;
+let routeKey = null, linesKey = null;
 function syncMapRoute() {
   const ui = state.ui;
+  const active = (state.snap?.buses || []).filter(b => b.status !== 'RETIRED');
+  const lk = active.map(b => b.name + ':' + b.route.join(',')).join('|');
+  if (lk !== linesKey) { linesKey = lk; mapView.drawLines(active.map(b => ({ route: b.route, color: busColor(b.name) }))); }
   let key, draw;
   if (ui.tab === 'add') {
     key = 'draft|' + ui.builder.join(',') + '|' + ui.builderIssues.map(i => i.segment).join(',');

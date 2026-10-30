@@ -6,10 +6,12 @@ import { esc } from '../lib/format.js';
 const BUS_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6"><rect x="3" y="2.5" width="10" height="9" rx="2"/><path d="M3 7.5h10M5.5 13.5v-2M10.5 13.5v-2"/></svg>';
 
 export function createMapView(el, { onStationClick, onBusClick }) {
-  const map = L.map(el, { zoomControl: true }).setView(MAP.center, MAP.zoom);
-  L.tileLayer(MAP.tiles, { maxZoom: 19, attribution: MAP.attribution }).addTo(map);
+  const map = L.map(el, { zoomControl: false }).setView(MAP.center, MAP.zoom);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  L.tileLayer(MAP.tiles, { maxZoom: 19, subdomains: MAP.subdomains, attribution: MAP.attribution }).addTo(map);
 
   const roadLayer = L.layerGroup().addTo(map);
+  const linesLayer = L.layerGroup().addTo(map);
   const routeLayer = L.layerGroup().addTo(map);
   const stationLayer = L.layerGroup().addTo(map);
   const busLayer = L.layerGroup().addTo(map);
@@ -22,11 +24,11 @@ export function createMapView(el, { onStationClick, onBusClick }) {
     stationLayer.clearLayers();
     stationMarkers.clear();
     for (const r of state.roads) {
-      L.polyline(r.geometry, { color: css('--road'), weight: 3, opacity: .55, interactive: false }).addTo(roadLayer);
+      L.polyline(r.geometry, { color: css('--road'), weight: 2.5, opacity: .7, dashArray: '1 5', lineCap: 'round', interactive: false }).addTo(roadLayer);
     }
     for (const s of state.stations) {
       const m = L.marker([s.lat, s.lng], { icon: stationIcon(s, ''), keyboard: true, title: s.name, zIndexOffset: 100 })
-        .bindTooltip(`<b>${esc(s.code)}</b> · ${esc(s.name)}`, { direction: 'top', offset: [0, -12] })
+        .bindTooltip(esc(s.name), { direction: 'top', offset: [0, -12] })
         .on('click', () => onStationClick(s.code))
         .addTo(stationLayer);
       stationMarkers.set(s.code, { m, key: '' });
@@ -35,7 +37,7 @@ export function createMapView(el, { onStationClick, onBusClick }) {
   }
 
   function stationIcon(s, cls) {
-    return L.divIcon({ className: 'st-icon', html: `<div class="st-pin ${cls}">${esc(s.code)}</div>`, iconSize: [24, 24], iconAnchor: [12, 12] });
+    return L.divIcon({ className: 'st-icon', html: `<div class="st-pin ${cls}">${esc(s.code)}</div>`, iconSize: [22, 22], iconAnchor: [11, 11] });
   }
 
   function markStations(selected, draft) {
@@ -46,19 +48,35 @@ export function createMapView(el, { onStationClick, onBusClick }) {
     }
   }
 
+  const segmentLine = (u, v) => {
+    const geom = roadGeometry(u, v);
+    if (geom) return geom;
+    const a = state.stations.find(s => s.code === u), b = state.stations.find(s => s.code === v);
+    return [[a.lat, a.lng], [b.lat, b.lng]];
+  };
+
+  // ทุกสายแบบจาง ให้แผนที่อ่านเหมือนผังรถประจำทาง
+  function drawLines(list) {
+    linesLayer.clearLayers();
+    for (const { route, color } of list) {
+      route.forEach((u, i) => L.polyline(segmentLine(u, route[(i + 1) % route.length]),
+        { color, weight: 3.5, opacity: .4, lineCap: 'round', interactive: false }).addTo(linesLayer));
+    }
+  }
+
   // เส้นทางของรถที่เลือก หรือเส้นทางร่างตอนเพิ่มรถ
   function drawRoute(codes, color, { draft = false, badSegments = [] } = {}) {
     routeLayer.clearLayers();
     if (!codes || codes.length < 2) return;
     codes.forEach((u, i) => {
       const v = codes[(i + 1) % codes.length];
-      const geom = roadGeometry(u, v);
-      const bad = badSegments.includes(i) || !geom;
-      const a = state.stations.find(s => s.code === u), b = state.stations.find(s => s.code === v);
-      const line = geom || [[a.lat, a.lng], [b.lat, b.lng]];
+      const bad = badSegments.includes(i) || !roadGeometry(u, v);
+      const line = segmentLine(u, v);
+      // ขอบขาวรองใต้เส้นสี ให้อ่านออกบนแผนที่ทุกโทน
+      if (!bad) L.polyline(line, { color: '#fff', weight: 10, opacity: .9, interactive: false }).addTo(routeLayer);
       L.polyline(line, {
-        color: bad ? css('--st-broken') : color, weight: bad ? 4 : 7, opacity: bad ? .9 : .6,
-        dashArray: bad || draft ? '8 8' : null, interactive: false,
+        color: bad ? css('--st-broken') : color, weight: bad ? 4 : 6, opacity: 1, lineCap: 'round', lineJoin: 'round',
+        dashArray: bad || draft ? '2 9' : null, interactive: false,
       }).addTo(routeLayer);
     });
   }
@@ -67,8 +85,8 @@ export function createMapView(el, { onStationClick, onBusClick }) {
     const live = b.positionSource === 'gps';
     return L.divIcon({
       className: 'bus-icon',
-      html: `<div class="bus-pin st-${b.status}${selected ? ' is-sel' : ''}" style="--c:${busColor(b.name)}">${BUS_SVG}<span class="name">${esc(b.name)}</span>${live ? '<span class="gps"></span>' : ''}</div>`,
-      iconSize: [26, 26], iconAnchor: [13, 13],
+      html: `<div class="bus-pin st-${b.status}${selected ? ' is-sel' : ''}" style="--c:${busColor(b.name)}">${BUS_SVG}<span>${esc(b.name)}</span>${live ? '<span class="gps" title="GPS จริง"></span>' : ''}</div>`,
+      iconSize: [0, 0], iconAnchor: [0, 0],
     });
   }
 
@@ -95,7 +113,7 @@ export function createMapView(el, { onStationClick, onBusClick }) {
   }
 
   return {
-    drawNetwork, drawRoute, markStations, updateBuses,
+    drawNetwork, drawLines, drawRoute, markStations, updateBuses,
     focus: (lat, lng) => map.panTo([lat, lng]),
     invalidate: () => map.invalidateSize(),
   };

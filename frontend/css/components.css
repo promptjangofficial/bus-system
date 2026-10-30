@@ -1,83 +1,148 @@
 /* Phase 6 — ส่วนประกอบ UI */
-.brand { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
-.brand small { opacity: .7; font-size: 12px; }
-.header-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.app-header button { background: transparent; color: var(--bg); border-color: color-mix(in srgb, var(--bg) 30%, transparent); }
-.app-header button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-.clock { font: 500 20px var(--f-mono); font-variant-numeric: tabular-nums; padding: 2px 10px; border-radius: 6px; background: color-mix(in srgb, var(--bg) 12%, transparent); }
-.seg { display: inline-flex; border: 1px solid color-mix(in srgb, var(--bg) 30%, transparent); border-radius: 6px; overflow: hidden; }
-.app-header .seg button { border: 0; border-radius: 0; padding: 6px 10px; }
-.app-header .seg button[aria-pressed="true"] { background: var(--bg); color: var(--ink); }
-.conn { font-size: 12px; display: inline-flex; align-items: center; gap: 6px; opacity: .85; }
+
+/* ---------- แถบหัว ---------- */
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand-mark { display: grid; gap: 3px; flex: none; }
+.brand-mark i { display: block; width: 26px; height: 5px; border-radius: 1px; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.3; min-width: 0; }
+.brand small { color: var(--muted); font-size: 12.5px; }
+.header-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.clock { display: inline-flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; padding-right: 6px; }
+.clock .day { font-size: 13px; color: var(--muted); }
+.clock .hm { font-size: 26px; font-weight: 700; letter-spacing: -.01em; min-width: 3.1ch; }
+.clock .s { font-size: 14px; color: var(--faint); min-width: 2ch; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.seg button { border: 0; border-radius: 0; padding: 7px 10px; background: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--accent-ink); }
+.conn { font-size: 12.5px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
 .conn i { width: 8px; height: 8px; border-radius: 50%; background: var(--st-broken); }
-.conn.on i { background: var(--st-moving); }
+.conn.on i { background: var(--ok); }
 
-.tabs { display: flex; border-bottom: 1px solid var(--line); overflow-x: auto; flex: none; }
-.tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 12px 14px; color: var(--muted); font-weight: 500; white-space: nowrap; }
-.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+/* ---------- แท็บ ---------- */
+.tabs { display: flex; gap: 4px; padding: 0 16px; border-bottom: 1px solid var(--line); overflow-x: auto; flex: none; }
+.tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none; padding: 14px 8px 11px; margin-right: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
 
-button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-button.danger { color: var(--st-broken); border-color: color-mix(in srgb, var(--st-broken) 45%, var(--line)); }
-.section { display: flex; flex-direction: column; gap: 9px; }
-.section + .section { border-top: 1px solid var(--line); padding-top: 16px; }
+/* ---------- ปุ่มและแถว ---------- */
+button.primary { background: var(--ink); color: var(--accent-ink); border-color: var(--ink); font-weight: 600; }
+button.primary:hover:not(:disabled) { background: #2c3a4f; }
+button.danger { color: var(--st-broken); border-color: color-mix(in srgb, var(--st-broken) 40%, var(--line)); }
+button.danger:hover:not(:disabled) { border-color: var(--st-broken); background: color-mix(in srgb, var(--st-broken) 6%, var(--surface)); }
+.section { display: flex; flex-direction: column; gap: 10px; }
+.section + .section { border-top: 1px solid var(--line); padding-top: 20px; }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .row > input, .row > select { flex: 1 1 130px; }
 
-.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 500; padding: 1px 8px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+/* ---------- ป้ายสายรถ (ชิ้นเด่นของงาน) ---------- */
+.plate {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  min-width: 74px; padding: 3px 9px; border-radius: 4px;
+  background: var(--c); color: #fff; font-weight: 700; font-size: 14px; letter-spacing: .02em;
+  font-variant-numeric: tabular-nums; line-height: 1.35; white-space: nowrap;
+}
+.plate.lg { font-size: 18px; min-width: 96px; padding: 4px 12px; }
+.plate.off { background: var(--surface-2); color: var(--faint); box-shadow: inset 0 0 0 1px var(--line); }
+
+/* ---------- ป้ายสถานะ: เล็ก เงียบ ยกเว้นรถเสีย ---------- */
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
 .st-MOVING { color: var(--st-moving); }   .st-AT_STATION { color: var(--st-station); }
-.st-BROKEN { color: var(--st-broken); }   .st-MODIFYING { color: var(--st-modifying); }
+.st-MODIFYING { color: var(--st-modifying); }
 .st-RETIRED { color: var(--st-retired); } .st-LIVE { color: var(--st-live); }
-.tag { font: 10.5px var(--f-mono); padding: 1px 6px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
-.swatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+.st-BROKEN { color: var(--st-broken); }
+.pill.st-BROKEN { color: #fff; background: var(--st-broken); padding: 2px 9px 2px 8px; border-radius: 4px; font-weight: 600; animation: blink 1s steps(2, jump-none) infinite; }
+.pill.st-BROKEN::before { background: #fff; }
+@keyframes blink { 50% { background: color-mix(in srgb, var(--st-broken) 55%, #fff); } }
+.tag { font-size: 12px; padding: 1px 7px; border-radius: 4px; background: var(--surface-2); color: var(--muted); }
 
-.bus-list { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-.bus-row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 11px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: var(--surface); text-align: left; width: 100%; }
-.bus-row:last-child { border-bottom: 0; }
-.bus-row[aria-current="true"] { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
-.bus-row .nm { font: 600 13px var(--f-mono); }
-.bus-row .sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* ---------- รายการรถ ---------- */
+.bus-list { display: flex; flex-direction: column; }
+.bus-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 8px; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; background: none; text-align: left; width: 100%; }
+.bus-row:hover:not(:disabled) { background: var(--surface-2); }
+.bus-row[aria-current="true"] { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--ink); }
+.bus-row .sub { font-size: 13.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bus-row .sub b { color: var(--ink); font-weight: 600; }
 
-.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 14px; margin: 0; font-size: 13px; }
-.kv dt { color: var(--muted); } .kv dd { margin: 0; min-width: 0; }
-.bar { height: 7px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; margin-top: 3px; }
-.bar i { display: block; height: 100%; background: var(--st-moving); }
+/* ---------- รายละเอียดรถ ---------- */
+.bus-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.bus-head .plate-no { color: var(--muted); font-size: 14px; }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 7px 18px; margin: 0; font-size: 14.5px; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; min-width: 0; font-variant-numeric: tabular-nums; }
+.kv .big { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.bar { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; margin-top: 5px; }
+.bar i { display: block; height: 100%; background: var(--ink); }
 .bar.over i { background: var(--st-broken); }
 
+/* ---------- ผังเส้นทาง: แถบสีสายวิ่งลงตามจุดแวะ แล้ววนกลับ ---------- */
+.line-diagram { list-style: none; margin: 0; padding: 0; }
+.line-diagram li { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 38px; }
+.line-diagram li::before { content: ""; position: absolute; left: 11px; top: 0; bottom: 0; width: 6px; background: var(--c); }
+.line-diagram li:first-child::before { top: 50%; }
+.line-diagram .dot { grid-column: 1; justify-self: center; position: relative; z-index: 1; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--c); }
+.line-diagram .nm { font-size: 14.5px; min-width: 0; }
+.line-diagram .ix { color: var(--faint); font-size: 12.5px; font-variant-numeric: tabular-nums; margin-right: 6px; }
+.line-diagram .cd { color: var(--muted); font-size: 12.5px; margin-left: 4px; }
+.line-diagram li.cur .dot { width: 22px; height: 22px; border-width: 4px; border-color: var(--ink); background: var(--c); }
+.line-diagram li.cur .nm { font-weight: 700; }
+.line-diagram li.cur .here { font-size: 12.5px; color: var(--muted); margin-left: 6px; font-weight: 400; }
+.line-diagram li.loop { min-height: 34px; color: var(--muted); font-size: 13.5px; }
+.line-diagram li.loop::before { bottom: 50%; }
+.line-diagram li.loop .dot { width: 22px; height: 14px; border: 0; background: none; }
+.line-diagram li.loop .dot::after { content: ""; position: absolute; left: 0; top: -12px; width: 18px; height: 19px; border: 6px solid var(--c); border-top: 0; border-right: 0; border-radius: 0 0 0 12px; opacity: .45; }
+.line-diagram button { border: 0; background: none; color: var(--muted); padding: 2px 8px; font-size: 13px; }
+.line-diagram button:hover { color: var(--st-broken); }
+
+/* ---------- ชิปเส้นทางร่าง (หน้าเพิ่มรถ) ---------- */
 .chips { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-.chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 5px; background: var(--surface-2); border: 1px solid var(--line); font-size: 12px; }
-.chip b { font-family: var(--f-mono); }
-.chip .ix { color: var(--muted); font-size: 10.5px; }
-.chip.cur { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.chip.cur .ix { color: inherit; opacity: .7; }
-.chip.bad { border-color: var(--st-broken); color: var(--st-broken); }
-.chip button { border: 0; background: none; padding: 0 2px; line-height: 1; color: inherit; font-size: 14px; }
-.arrow { color: var(--muted); font-size: 11px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 4px; background: var(--surface-2); font-size: 13px; }
+.chip .ix { color: var(--faint); font-size: 12px; }
+.chip.cur { background: var(--ink); color: var(--accent-ink); }
+.chip.bad { box-shadow: inset 0 0 0 1.5px var(--st-broken); color: var(--st-broken); }
+.chip button { border: 0; background: none; padding: 0 2px; line-height: 1; color: inherit; font-size: 15px; }
+.arrow { color: var(--faint); font-size: 12px; }
 
-.msg { font-size: 12.5px; padding: 8px 10px; border-radius: 6px; background: var(--surface-2); border-left: 3px solid var(--muted); }
-.msg.err { border-left-color: var(--st-broken); } .msg.ok { border-left-color: var(--st-moving); } .msg.warn { border-left-color: var(--st-modifying); }
-.waiting { font-size: 12px; color: var(--muted); border: 1px dashed var(--line); border-radius: 6px; padding: 6px 9px; }
+/* ---------- ข้อความแจ้ง ---------- */
+.msg { font-size: 14px; padding: 9px 12px; border-radius: var(--radius); background: var(--surface-2); }
+.msg.err { background: color-mix(in srgb, var(--st-broken) 9%, var(--surface)); color: #a01d2c; }
+.msg.ok { background: color-mix(in srgb, var(--ok) 10%, var(--surface)); color: #14613a; font-weight: 500; }
+.msg.warn { background: color-mix(in srgb, var(--st-modifying) 11%, var(--surface)); color: #6e4600; }
+.waiting { font-size: 14px; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); padding: 10px 12px; }
 
-.form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+/* ---------- ฟอร์ม ---------- */
+.form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
 .form-grid > * { min-width: 0; }
-.form-grid input { width: 100%; }
-.form-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
-.form-grid input { color: var(--ink); }
+.form-grid input { width: 100%; color: var(--ink); }
+.form-grid label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--muted); }
 .form-grid .full { grid-column: 1 / -1; }
 
+/* ---------- ตาราง/โค้ด (แท็บอุปกรณ์) ---------- */
 .table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
-th, td { text-align: left; padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
-pre { margin: 0; padding: 9px 11px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; font: 11.5px/1.55 var(--f-mono); overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: 12.5px; }
+pre { margin: 0; padding: 10px 12px; background: var(--surface-2); border-radius: var(--radius); font: 12.5px/1.6 ui-monospace, Menlo, monospace; overflow-x: auto; }
 .copy-line { display: flex; gap: 6px; align-items: center; }
-.copy-line code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 12px var(--f-mono); padding: 6px 8px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; }
+.copy-line code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 12.5px ui-monospace, Menlo, monospace; padding: 8px 10px; background: var(--surface-2); border-radius: var(--radius); }
 
-.event-log div { display: flex; gap: 12px; }
-.event-log .t { color: var(--muted); font-family: var(--f-mono); flex: none; }
+/* ---------- บันทึกเหตุการณ์ ---------- */
+.event-log div { display: flex; gap: 14px; padding: 1px 0; }
+.event-log .t { color: var(--faint); flex: none; font-variant-numeric: tabular-nums; }
 
-.station-card { position: absolute; z-index: 500; left: 12px; bottom: 144px; width: min(340px, calc(100% - 24px)); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
-.station-card .close { position: absolute; top: 6px; right: 6px; border: 0; background: none; font-size: 18px; padding: 2px 8px; }
-.arrival { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+/* ---------- ป้ายสถานี: รถที่จะมาถึง ---------- */
+.station-card { position: absolute; z-index: 500; left: 16px; top: 16px; width: min(380px, calc(100% - 32px)); background: var(--surface); border-radius: 8px; box-shadow: var(--shadow); padding: 16px 18px 10px; display: flex; flex-direction: column; }
+.station-card .close { position: absolute; top: 8px; right: 8px; border: 0; background: none; font-size: 22px; line-height: 1; padding: 4px 10px; color: var(--muted); }
+.station-card .close:hover { color: var(--ink); }
+.station-card .stop-code { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid var(--ink); font-size: 13px; font-weight: 700; margin-right: 8px; vertical-align: 3px; }
+.station-card h2 { padding-right: 32px; margin-bottom: 8px; }
+.arrival { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.arrival .info { font-size: 13px; color: var(--muted); min-width: 0; }
+.arrival .eta { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.arrival .eta b { font-size: 24px; font-weight: 700; line-height: 1; }
+.arrival .eta span { font-size: 13px; color: var(--muted); margin-left: 3px; }
+.arrival .eta.soon { color: var(--ok); }
 
-.toast { position: fixed; z-index: 1000; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 8px; box-shadow: var(--shadow); font-size: 13px; max-width: calc(100% - 32px); }
-.toast.err { background: var(--st-broken); color: #fff; }
+/* ---------- toast ---------- */
+.toast { position: fixed; z-index: 1000; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--accent-ink); padding: 10px 18px; border-radius: var(--radius); box-shadow: var(--shadow); font-size: 14px; max-width: calc(100% - 32px); }
+.toast.err { background: var(--st-broken); }

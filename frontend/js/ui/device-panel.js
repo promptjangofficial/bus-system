@@ -5,7 +5,7 @@ import { GPS_TEST_INTERVAL_MS } from '../config.js';
 import { DEVICE_FEATURES, PAYLOAD_EXAMPLES } from '../content/texts.js';
 import { esc, fmtAgo } from '../lib/format.js';
 import { $, patch, copyText } from '../lib/dom.js';
-import { msgBox, toast } from './common.js';
+import { msgBox, toast, plate } from './common.js';
 
 // ---------- เครื่องมือทดสอบ: ส่งพิกัดไล่ตามเส้นถนน (ไม่ใช่ข้อมูลจริง) ----------
 const STEPS = 6;
@@ -49,7 +49,7 @@ function statusTableHTML() {
   const cell = (v, ok, txt) => v ? `${ok}<div class="muted small mono">${fmtAgo(v.ageMs)}</div>` : `<span class="muted">${txt}</span>`;
   const rows = buses().map(b => {
     const d = b.device;
-    return `<tr><td class="mono">${esc(b.name)}</td>
+    return `<tr><td>${plate(b.name)}</td>
       <td>${cell(d.gps, d.gps?.online ? '<span class="pill st-LIVE">ออนไลน์</span>' : '<span class="pill st-RETIRED">ขาดสัญญาณ</span>', 'ยังไม่ติดตั้ง')}</td>
       <td>${cell(d.passengers, `<span class="mono">${d.passengers?.count}/${b.capacity}</span>`, 'ยังไม่ติดตั้ง')}</td>
       <td>${cell(d.engine, d.engine?.fault ? `<span class="pill st-BROKEN">${esc(d.engine.code || 'ขัดข้อง')}</span>` : '<span class="pill st-MOVING">ปกติ</span>', 'ยังไม่ติดตั้ง')}</td></tr>`;

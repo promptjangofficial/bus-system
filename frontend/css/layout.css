@@ -1,8 +1,8 @@
 /* Phase 6 — โครงหน้า: หัว / แผนที่ / แผงควบคุม */
 .app-header {
-  height: var(--header-h); display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
-  background: var(--ink); color: var(--bg);
+  height: var(--header-h); display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-inline: max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-right));
+  background: var(--surface); border-bottom: 1px solid var(--line); position: relative; z-index: 2;
 }
 .app-main {
   height: calc(100dvh - var(--header-h));
@@ -10,14 +10,14 @@
 }
 .map-area { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .map { flex: 1; min-height: 0; }
-.event-log { height: 132px; overflow: auto; border-top: 1px solid var(--line); background: var(--surface); padding: 8px 14px; font-size: 12.5px; }
+.event-log { height: 128px; overflow: auto; border-top: 1px solid var(--line); background: var(--surface); padding: 10px 20px; font-size: 13px; }
 .panel { min-width: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; background: var(--surface); border-left: 1px solid var(--line); }
-.panel-body { min-width: 0; flex: 1; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 18px; }
+.panel-body { min-width: 0; flex: 1; overflow: auto; padding: 20px; display: flex; flex-direction: column; gap: 24px; }
 
 @media (max-width: 960px) {
-  .app-header { height: auto; flex-wrap: wrap; padding-block: 10px; }
+  .app-header { height: auto; flex-wrap: wrap; padding-block: 12px; row-gap: 10px; }
   .app-main { height: auto; grid-template-columns: minmax(0, 1fr); }
   .map-area { height: 62dvh; }
   .panel { border-left: 0; border-top: 1px solid var(--line); }
-  .panel-body { overflow: visible; }
+  .panel-body { overflow: visible; padding: 16px; }
 }

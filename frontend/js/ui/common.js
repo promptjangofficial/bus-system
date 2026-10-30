@@ -1,13 +1,16 @@
 // Phase 6 — ส่วนประกอบที่ใช้ร่วมกันหลายแผง
 import { STATUS_LABEL } from '../content/texts.js';
-import { state } from '../store.js';
+import { state, busColor } from '../store.js';
 import { esc } from '../lib/format.js';
 
 export const statusPill = s => `<span class="pill st-${s}">${STATUS_LABEL[s] || s}</span>`;
 export const livePill = () => '<span class="pill st-LIVE">GPS จริง</span>';
+// ป้ายสายรถ: ชื่อรถบนพื้นสีประจำสาย
+export const plate = (name, { lg = false, off = false } = {}) =>
+  `<span class="plate${lg ? ' lg' : ''}${off ? ' off' : ''}" style="--c:${busColor(name)}">${esc(name)}</span>`;
 
 export const stationOptions = selected => state.stations
-  .map(s => `<option value="${esc(s.code)}"${s.code === selected ? ' selected' : ''}>${esc(s.code)} · ${esc(s.name)}</option>`).join('');
+  .map(s => `<option value="${esc(s.code)}"${s.code === selected ? ' selected' : ''}>${esc(s.name)} (${esc(s.code)})</option>`).join('');
 
 export const msgBox = m => (m ? `<div class="msg ${m.cls || ''}">${m.html ?? esc(m.text)}</div>` : '');
 

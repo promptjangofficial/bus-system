@@ -1,16 +1,20 @@
 // Phase 6 — แถบหัว: นาฬิกาจำลอง เริ่ม/หยุด อัตราเร็ว รีเซ็ต สถานะการเชื่อมต่อ
 import { state, setUI } from '../store.js';
 import { api } from '../lib/api.js';
-import { NETWORK_SOURCE } from '../content/texts.js';
+import { NETWORK_SOURCE, CLOCK_DAY } from '../content/texts.js';
+import { LINE_COLORS } from '../config.js';
 import { fmtClock } from '../lib/format.js';
 import { patch } from '../lib/dom.js';
 import { run } from './common.js';
 
 export function mountHeader(el) {
   el.innerHTML = `
-    <div class="brand"><h1>ระบบเดินรถพิษณุโลก</h1><small id="hdrNet"></small></div>
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">${Object.values(LINE_COLORS).map(c => `<i style="background:${c}"></i>`).join('')}</span>
+      <span class="brand-text"><h1>ระบบเดินรถพิษณุโลก</h1><small id="hdrNet"></small></span>
+    </div>
     <div class="header-controls">
-      <span class="clock" id="hdrClock" aria-label="เวลาจำลอง">--:--:--</span>
+      <span class="clock" id="hdrClock" aria-label="เวลาจำลอง"><span class="day">${CLOCK_DAY}</span><span class="hm">--:--</span><span class="s">--</span></span>
       <button class="primary" id="hdrRun"></button>
       <div class="seg" id="hdrSpeed" role="group" aria-label="อัตราเร็วเวลาจำลอง"></div>
       <span id="hdrReset"></span>
@@ -33,8 +37,11 @@ export function mountHeader(el) {
 
 export function updateHeader() {
   const sim = state.snap?.sim;
-  document.getElementById('hdrClock').textContent = sim ? fmtClock(sim.clock) : '--:--:--';
-  document.getElementById('hdrRun').textContent = sim?.running ? '⏸ หยุดชั่วคราว' : '▶ เริ่มเดินรถ';
+  const [h, m, s] = (sim ? fmtClock(sim.clock) : '--:--:--').split(':');
+  const clock = document.getElementById('hdrClock');
+  clock.querySelector('.hm').textContent = `${h}:${m}`;
+  clock.querySelector('.s').textContent = s;
+  document.getElementById('hdrRun').textContent = sim?.running ? 'หยุดชั่วคราว' : 'เริ่มเดินรถ';
   patch(document.getElementById('hdrSpeed'), (sim?.scales || []).map(s =>
     `<button data-speed="${s}" aria-pressed="${sim.scale === s}">${s}×</button>`).join(''));
   patch(document.getElementById('hdrReset'), state.ui.confirmReset
@@ -44,5 +51,5 @@ export function updateHeader() {
   conn.classList.toggle('on', state.connected);
   conn.lastElementChild.textContent = state.connected ? 'เชื่อมต่อเซิร์ฟเวอร์' : 'ขาดการเชื่อมต่อ';
   document.getElementById('hdrNet').textContent = state.network
-    ? `${state.network.stations} สถานี · ${state.network.roads} ถนน · ${NETWORK_SOURCE[state.network.source] || ''}` : '';
+    ? `${state.network.stations} สถานี ${state.network.roads} ถนน ${NETWORK_SOURCE[state.network.source] || ''}` : '';
 }

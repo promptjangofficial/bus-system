@@ -1,10 +1,10 @@
 // Phase 6 — การ์ดสถานี: รถที่ผ่านสถานีนี้ และเวลาถึง
-import { state, setUI, busColor } from '../store.js';
+import { state, setUI, busOf } from '../store.js';
 import { api } from '../lib/api.js';
 import { ARRIVALS_REFRESH_MS } from '../config.js';
-import { esc, fmtDur } from '../lib/format.js';
+import { esc } from '../lib/format.js';
 import { patch } from '../lib/dom.js';
-import { statusPill } from './common.js';
+import { statusPill, plate } from './common.js';
 
 let timer = null, data = null, loadedFor = null;
 
@@ -17,14 +17,35 @@ function render(el) {
   if (!data) { patch(el, '<span class="muted">กำลังโหลด…</span>'); return; }
   const s = data.station;
   const rows = data.arrivals.map(a => `
-    <div class="arrival"><i class="swatch" style="background:${busColor(a.bus)}"></i><b class="mono">${esc(a.bus)}</b>
-      <span class="muted small">จุดแวะที่ ${a.positions.join(', ')}</span>
-      ${a.here ? statusPill('AT_STATION') : a.nextHere && a.etaSec != null ? `<span class="mono">ถึงใน ${fmtDur(a.etaSec)}</span>` : ''}
-      ${a.status === 'BROKEN' ? statusPill('BROKEN') : ''}</div>`).join('');
+    <div class="arrival">${plate(a.bus)}
+      <span class="info">${a.status === 'BROKEN' ? statusPill('BROKEN') : esc(arrivalNote(a))}</span>
+      ${etaHTML(a)}</div>`).join('');
   patch(el, `<button class="close" data-act="closeStation" aria-label="ปิด">×</button>
-    <div><h2 style="padding-right:24px"><span class="mono">${esc(s.code)}</span> ${esc(s.name)}</h2>
-    <div class="muted small mono">${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}</div></div>
-    ${rows || '<span class="muted">ไม่มีรถผ่านสถานีนี้</span>'}`);
+    <h2><span class="stop-code">${esc(s.code)}</span>${esc(s.name)}</h2>
+    ${rows || '<p class="muted">ไม่มีรถผ่านป้ายนี้</p>'}`);
+}
+
+// จำนวนป้ายก่อนถึงที่นี่ นับจากป้ายถัดไปของรถ (positions เริ่มนับที่ 1)
+function stopsAway(a) {
+  const b = busOf(a.bus);
+  if (!b) return null;
+  const n = b.route.length, from = (b.currentIndex + 1) % n;
+  return Math.min(...a.positions.map(p => (p - 1 - from + n) % n));
+}
+
+function arrivalNote(a) {
+  if (a.here) return 'จอดอยู่ที่ป้ายนี้';
+  if (a.nextHere) return 'กำลังมาป้ายนี้';
+  const k = stopsAway(a);
+  return k == null ? 'ผ่านป้ายนี้' : `อีก ${k} ป้ายก่อนถึง`;
+}
+
+function etaHTML(a) {
+  if (a.status === 'BROKEN') return '<span class="eta"></span>';
+  if (a.here) return '<span class="eta soon"><b>ถึงแล้ว</b></span>';
+  if (!a.nextHere || a.etaSec == null) return '<span class="eta"></span>';
+  const m = Math.floor(a.etaSec / 60);
+  return m < 1 ? '<span class="eta soon"><b>ใกล้ถึง</b></span>' : `<span class="eta"><b>${m}</b><span>นาที</span></span>`;
 }
 
 export function mountStationCard(el) {

@@ -7,9 +7,12 @@ export const STATUS_LABEL = {
   RETIRED: 'ปลดระวาง',
 };
 
+// วันที่แสดงหน้านาฬิกาจำลอง (บทวิดีโอเริ่มเช้าวันจันทร์)
+export const CLOCK_DAY = 'จันทร์';
+
 export const NETWORK_SOURCE = {
-  osrm: 'ระยะทางตามถนนจริง',
-  mixed: 'ระยะทางตามถนนจริงบางส่วน',
+  osrm: 'ตามถนนจริง',
+  mixed: 'ตามถนนจริงบางส่วน',
   estimate: 'ระยะทางโดยประมาณ',
 };
 

@@ -6,6 +6,6 @@ import { patch } from '../lib/dom.js';
 export function updateEventLog(el) {
   const items = state.snap?.log || [];
   patch(el, items.length
-    ? items.map(l => `<div><span class="t">${fmtClock(l.clock)}</span><span>${esc(l.text)}</span></div>`).join('')
+    ? items.map(l => `<div><span class="t">${fmtClock(l.clock).slice(0, 5)}</span><span>${esc(l.text)}</span></div>`).join('')
     : '<span class="muted">ยังไม่มีเหตุการณ์</span>');
 }

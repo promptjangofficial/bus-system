@@ -3,7 +3,7 @@ import { state, setUI, buses, selectedBus, stationName, busColor } from '../stor
 import { api } from '../lib/api.js';
 import { esc, fmtDur } from '../lib/format.js';
 import { patch, $ } from '../lib/dom.js';
-import { statusPill, livePill, stationOptions, msgBox, run } from './common.js';
+import { statusPill, livePill, plate, stationOptions, msgBox, run } from './common.js';
 
 let detailSig = null;
 
@@ -17,7 +17,7 @@ export function renderFleet(root) {
     <div class="section">
       <h3>ค้นหารถ</h3>
       <form class="row" id="fSearch" autocomplete="off">
-        <input id="qName" placeholder="ชื่อรถ เช่น CITY-02" aria-label="ชื่อรถ">
+        <input id="qName" placeholder="พิมพ์ชื่อรถ เช่น NU-01" aria-label="ชื่อรถ">
         <button class="primary">ค้นหา</button>
       </form>
       ${msgBox(state.ui.searchMsg)}
@@ -32,13 +32,10 @@ function busListHTML() {
   if (!list.length) return '<div class="waiting" style="margin:8px">ยังไม่มีรถในระบบ — เพิ่มรถคันแรกได้ที่แท็บ "เพิ่มรถ"</div>';
   return list.map(b => `
     <button class="bus-row" data-pick="${esc(b.name)}" aria-current="${state.ui.selected === b.name}">
-      <i class="swatch" style="background:${busColor(b.name)}"></i>
-      <span style="min-width:0">
-        <span class="nm">${esc(b.name)}</span> ${b.positionSource === 'gps' ? livePill() : ''}
-        <span class="sub" style="display:block">${b.status === 'RETIRED' ? 'ปลดระวางแล้ว'
-          : `ถัดไป ${esc(stationName(b.next))}${b.etaSec != null ? ' · ' + fmtDur(b.etaSec) : ''}`}</span>
-      </span>
-      ${statusPill(b.status)}
+      ${plate(b.name, { off: b.status === 'RETIRED' })}
+      <span class="sub">${b.status === 'RETIRED' ? 'ปลดระวางแล้ว'
+        : `ถัดไป <b>${esc(stationName(b.next))}</b>${b.etaSec != null && b.status === 'MOVING' ? ` อีก ${fmtDur(b.etaSec)}` : ''}`}</span>
+      ${b.positionSource === 'gps' ? livePill() : ''}${statusPill(b.status)}
     </button>`).join('');
 }
 
@@ -50,26 +47,32 @@ function detailLiveHTML(b) {
     <div class="row">${statusPill(b.status)} ${live ? livePill() : '<span class="tag">ตำแหน่งจำลอง</span>'}
       ${b.pendingModify ? '<span class="pill st-MODIFYING">รอถึงสถานีเพื่อแก้เส้นทาง</span>' : ''}</div>
     <dl class="kv">
-      <dt>${b.status === 'MOVING' ? 'เพิ่งออกจาก' : 'อยู่ที่'}</dt><dd><b class="mono">${esc(b.current)}</b> ${esc(stationName(b.current))}</dd>
-      <dt>สถานีถัดไป</dt><dd><b class="mono">${esc(b.next)}</b> ${esc(stationName(b.next))} <span class="muted mono">${b.segmentKm.toFixed(1)} กม.</span></dd>
-      <dt>ถึงในอีก</dt><dd class="mono">${fmtDur(b.etaSec)}${b.etaSec != null ? ` <span class="muted">${b.etaBasis === 'real' ? 'เวลาจริง' : 'เวลาจำลอง'}</span>` : ''}</dd>
-      ${b.dwellSec != null ? `<dt>จอดอีก</dt><dd class="mono">${fmtDur(b.dwellSec)}</dd>` : ''}
-      <dt>ความเร็ว</dt><dd class="mono">${live ? `${Math.round(b.device.gps.speedKmh)} กม./ชม. (GPS)` : `${b.speedKmh} กม./ชม.`}</dd>
+      <dt>สถานีถัดไป</dt><dd><b>${esc(stationName(b.next))}</b> <span class="muted">${b.segmentKm.toFixed(1)} กม.</span></dd>
+      <dt>ถึงในอีก</dt><dd><span class="big">${fmtDur(b.etaSec)}</span>${b.etaSec != null ? ` <span class="muted small">${b.etaBasis === 'real' ? 'จากความเร็วจริง' : 'จากการจำลอง'}</span>` : ''}</dd>
+      ${b.dwellSec != null ? `<dt>จอดอีก</dt><dd>${fmtDur(b.dwellSec)}</dd>` : ''}
+      <dt>ความเร็ว</dt><dd>${live ? `${Math.round(b.device.gps.speedKmh)} กม./ชม. (GPS)` : `${b.speedKmh} กม./ชม.`}</dd>
       <dt>ผู้โดยสาร</dt><dd>${pax
-        ? `<span class="mono">${pax.count}/${b.capacity}</span><div class="bar${pax.count > b.capacity ? ' over' : ''}"><i style="width:${Math.min(100, pax.count / b.capacity * 100)}%"></i></div>`
-        : `<span class="muted">รอเซนเซอร์นับผู้โดยสาร · ความจุ ${b.capacity} ที่นั่ง</span>`}</dd>
-      <dt>ครบรอบ</dt><dd class="mono">${b.laps} รอบ</dd>
+        ? `${pax.count} จาก ${b.capacity} ที่นั่ง<div class="bar${pax.count > b.capacity ? ' over' : ''}"><i style="width:${Math.min(100, pax.count / b.capacity * 100)}%"></i></div>`
+        : `<span class="muted">รอเซนเซอร์นับผู้โดยสาร (ความจุ ${b.capacity} ที่นั่ง)</span>`}</dd>
+      <dt>ครบรอบ</dt><dd>${b.laps} รอบ</dd>
       ${b.offRouteM > 400 ? `<dt>คำเตือน</dt><dd style="color:var(--st-modifying)">ตำแหน่ง GPS ห่างเส้นทาง ${b.offRouteM} ม.</dd>` : ''}
     </dl>`;
 }
 
-function routeChipsHTML(b) {
+// ผังเส้นทางแนวตั้ง: แถบสีสายลากผ่านทุกจุดแวะ แล้ววนกลับจุดแรก (Circular Linked List)
+function routeDiagramHTML(b) {
   const mod = b.status === 'MODIFYING';
-  return `<div class="chips">${b.route.map((c, i) => `
-    <span class="chip${i === b.currentIndex && b.status !== 'RETIRED' ? ' cur' : ''}" title="${esc(stationName(c))}">
-      <span class="ix">${i + 1}</span><b>${esc(c)}</b>
-      ${mod && i !== b.currentIndex ? `<button data-del="${i}" aria-label="ลบจุดแวะที่ ${i + 1}">×</button>` : ''}
-    </span><span class="arrow">→</span>`).join('')}<span class="arrow">↺ วนกลับ</span></div>`;
+  const moving = b.status === 'MOVING';
+  const stops = b.route.map((c, i) => {
+    const cur = i === b.currentIndex && b.status !== 'RETIRED';
+    return `<li class="${cur ? 'cur' : ''}">
+      <span class="dot"></span>
+      <span class="nm"><span class="ix">${i + 1}</span>${esc(stationName(c))}<span class="cd">${esc(c)}</span>${cur ? `<span class="here">${moving ? 'เพิ่งออกจากที่นี่' : 'รถอยู่ที่นี่'}</span>` : ''}</span>
+      ${mod && !cur ? `<button data-del="${i}" aria-label="ลบจุดแวะที่ ${i + 1}">ลบ</button>` : '<span></span>'}
+    </li>`;
+  }).join('');
+  return `<ol class="line-diagram" style="--c:${busColor(b.name)}">${stops}
+    <li class="loop"><span class="dot"></span><span>วนกลับไป ${esc(stationName(b.route[0]))}</span><span></span></li></ol>`;
 }
 
 function detailHTML(b) {
@@ -91,21 +94,21 @@ function detailHTML(b) {
     <div class="msg warn">รถจอดอยู่ที่สถานี เพิ่มหรือลบจุดแวะ แล้วกดตรวจสอบเพื่อเดินรถต่อ</div>
     <form class="row" id="fInsert">
       <label class="small muted" for="insAfter">แทรกหลังจุดแวะที่</label>
-      <select id="insAfter">${b.route.map((c, i) => `<option value="${i}">${i + 1} · ${esc(c)}</option>`).join('')}</select>
+      <select id="insAfter">${b.route.map((c, i) => `<option value="${i}">${i + 1}. ${esc(stationName(c))}</option>`).join('')}</select>
       <select id="insStation" aria-label="สถานีที่จะเพิ่ม">${stationOptions()}</select>
       <button>เพิ่มจุดแวะ</button>
     </form>
     <div class="row"><button class="primary" data-act="resume">ตรวจสอบเส้นทางและเดินรถต่อ</button></div>` : '';
 
   return `
-    <div class="row" style="justify-content:space-between">
-      <h2 class="row" style="gap:8px"><i class="swatch" style="background:${busColor(b.name)};width:12px;height:12px"></i>${esc(b.name)}</h2>
-      <span class="mono muted">${esc(b.plate)}</span>
+    <div class="bus-head">
+      <h2>${plate(b.name, { lg: true, off: st === 'RETIRED' })}</h2>
+      <span class="plate-no">ทะเบียน ${esc(b.plate)}</span>
     </div>
     <div id="detailLive" class="section"></div>
     <div class="row">${actions.join('')}</div>
     <div class="section">
-      <h3>เส้นทาง · ${b.route.length} จุดแวะ</h3>
+      <h3>เส้นทาง ${b.route.length} จุดแวะ</h3>
       <div id="routeChips"></div>
       ${modify}
       ${msgBox(ui.routeMsg)}
@@ -131,7 +134,7 @@ export function updateFleet(root) {
   }
   if (b) {
     patch($('#detailLive', root), detailLiveHTML(b));
-    patch($('#routeChips', root), routeChipsHTML(b));
+    patch($('#routeChips', root), routeDiagramHTML(b));
   }
 }
 
